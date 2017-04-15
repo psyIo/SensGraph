@@ -10,12 +10,118 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="org.psylo.sensgraph.SensGraphConfigure">
 
+    <TextView
+        android:text="@string/action_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView2"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"/>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutUrl"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:weightSum="10"
+        android:layout_below="@+id/textView2"
+        android:layout_alignParentStart="true">
+
+        <AutoCompleteTextView
+            android:id="@+id/nameUrlValueEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="8"
+            android:text="@string/sensor_url_text_place_holder"
+            android:textAlignment="gravity"
+            android:textSize="14dp"
+            android:inputType="text"/>
+
+        <TextView
+            android:id="@+id/refreshBtnTv"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="@android:color/background_dark"
+            android:clickable="true"
+            android:minWidth="40dp"
+            android:text="@string/refresh_btn_text"
+            android:textColor="@color/blue" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutName"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="4"
+        android:layout_below="@+id/textView2"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="35dp">
+
+        <TextView
+            android:id="@+id/nameValueTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="@string/sensor_name_text_place_holder"
+            android:textAlignment="gravity" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutValue"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="4"
+        android:layout_marginTop="19dp"
+        android:layout_below="@+id/textView2"
+        android:layout_alignTop="@+id/linearLayoutName">
+
+        <TextView
+            android:id="@+id/valueValueTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="@string/sensor_value_text_place_holder"
+            android:textAlignment="textStart" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutUpdateTime"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="4"
+        android:layout_marginTop="19dp"
+        android:layout_below="@+id/textView2"
+        android:layout_alignTop="@+id/linearLayoutValue">
+        <TextView
+            android:id="@+id/updateTimeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/update_time_text"
+            android:textAlignment="textStart" />
+
+        <EditText
+            android:id="@+id/updateIntervalEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:inputType="number"
+            android:text="@string/update_time_default_interval"
+            android:textAlignment="gravity"
+            android:textSize="14dp" />
+        <!--<View-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight=""/>-->
+    </LinearLayout>
+
     <Button
         android:text="Save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/save_settings_btn"
-        android:layout_marginBottom="70dp"
+        android:layout_marginBottom="60dp"
         android:layout_alignParentBottom="true"
         android:layout_alignStart="@+id/textView2" />
 
@@ -23,15 +129,9 @@
         android:id="@+id/namesList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/textView2"
-        android:layout_toEndOf="@+id/save_settings_btn" />
-
-    <TextView
-        android:text="@string/action_settings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView2"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignTop="@+id/linearLayoutUpdateTime"
+        android:layout_marginTop="40dp"
+        android:layout_toEndOf="@+id/save_settings_btn"
+        android:elevation="1dp" />
 
 </RelativeLayout>

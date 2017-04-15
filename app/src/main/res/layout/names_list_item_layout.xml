@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-</TextView>
+
+    <org.psylo.sensgraph.ExpandedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/namesListTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/abc_text_size_large_material">
+    </org.psylo.sensgraph.ExpandedTextView>
+
+    <TextView
+        android:id="@+id/namesListValueTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/namesListTextView"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="@dimen/abc_text_size_menu_material" />
+
+</RelativeLayout>
+
