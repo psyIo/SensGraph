@@ -17,7 +17,7 @@ public class SimpleDb {
     private int currEntryIdx;
     private List entries;
     private Entry currEntry;
-    DevTools dt = new DevTools(); //dev
+//    DevTools dt = new DevTools(); //dev
 
 
 //    public SimpleDb() {

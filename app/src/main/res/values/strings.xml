@@ -11,4 +11,10 @@
     <string name="refresh_btn_text">ref</string>
     <string name="update_time_text">Update interval (min)</string>
     <string name="update_time_default_interval">30</string>
+    <string name="json_worker_err00">Unable to parse response from URL</string>
+    <string name="json_worker_err0">Unknown error</string>
+    <string name="json_worker_err1">Unable to parse given URL</string>
+    <string name="json_worker_err2">Connection timeout</string>
+    <string name="json_worker_err3">Unable to connect to a given URL</string>
+    <string name="json_worker_err4">Unable to convert response from URL into JSON</string>
 </resources>

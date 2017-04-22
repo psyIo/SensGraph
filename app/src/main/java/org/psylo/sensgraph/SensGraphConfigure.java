@@ -3,8 +3,10 @@ package org.psylo.sensgraph;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
+import android.support.v4.util.ArraySet;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.view.View;
@@ -22,11 +25,15 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.Locale;
+import java.util.Set;
+
 
 public class SensGraphConfigure extends AppCompatActivity {
 
     static final String TAG = "SensGraphConfAct";
     static final String APP_NAME = "SensGraph";
+    static final String USED_URLS_AUTOCOMPLETE_SHARED_PREF = "USED_URLS";
     static DevTools dt = new DevTools(); //dev
     protected String sensorName;  //sensor name from JSON
     protected String sensorValue; //sensor value from JSON
@@ -35,20 +42,66 @@ public class SensGraphConfigure extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        int mAppWidgetId = 0;
+//        int mAppWidgetId = 0;
         super.onCreate(savedInstanceState);
         final Resources res = getResources();
-        Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
-        if (extras != null) {
-            mAppWidgetId = extras.getInt(
-                    AppWidgetManager.EXTRA_APPWIDGET_ID,
-                    AppWidgetManager.INVALID_APPWIDGET_ID);
-        }
+//        Intent intent = getIntent();
+//        Bundle extras = intent.getExtras();
+//        if (extras != null) {
+//            mAppWidgetId = extras.getInt(
+//                    AppWidgetManager.EXTRA_APPWIDGET_ID,
+//                    AppWidgetManager.INVALID_APPWIDGET_ID);
+//        }
         setContentView(R.layout.activity_sensgraph_configure);
 
-        AutoCompleteTextView editText = (AutoCompleteTextView) findViewById(R.id.nameUrlValueEdit);
-        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        final AutoCompleteTextView urlAutoCompleteTv = (AutoCompleteTextView) findViewById(R.id.nameUrlValueEdit);
+        SharedPreferences settings = getSharedPreferences(APP_NAME, 0);// + "_" + String.valueOf(mAppWidgetId), 0);
+        Set<String> usedUrls = new ArraySet<>();
+        usedUrls = settings.getStringSet(USED_URLS_AUTOCOMPLETE_SHARED_PREF, usedUrls);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                R.layout.single_text_view, usedUrls.toArray(new String[0]));
+        urlAutoCompleteTv.setAdapter(adapter);
+        urlAutoCompleteTv.setOnClickListener(new TextView.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if (urlAutoCompleteTv.getText().toString().equals(
+                        res.getString(R.string.sensor_url_text_place_holder))) {
+                    urlAutoCompleteTv.setText("");
+                }
+                dt.logV("urlAutoCompleteTv clicked onClick");
+            }
+        });
+        urlAutoCompleteTv.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                //if action is DONE then updates list and hides softKeyboard
+                //if action is NEXT then replaces empty url string to a default one
+                boolean handled = false;
+                dt.logV("onEditorAction actionId", actionId);
+                switch (actionId) {
+
+                    case EditorInfo.IME_ACTION_DONE:
+                        View view = getCurrentFocus();
+                        if (view != null) {
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                            getResponseAndUpdateNameList();
+                        }
+                        handled = true;
+                        break;
+                    case EditorInfo.IME_ACTION_NEXT:
+                        if (v.getText().toString().equals("")) {
+                            v.setText(res.getString(R.string.sensor_url_text_place_holder));
+                        }
+
+                        break;
+                }
+                return handled;
+            }
+        });
+
+        EditText updateIntervalEt = (EditText) findViewById(R.id.updateIntervalEditText);
+        updateIntervalEt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 //if action is DONE then updates list and hides softKeyboard
@@ -58,7 +111,7 @@ public class SensGraphConfigure extends AppCompatActivity {
                     if (view != null) {
                         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                        getResponseAndUpdateList();
+                        getResponseAndUpdateNameList();
                     }
                     handled = true;
                 }
@@ -66,29 +119,19 @@ public class SensGraphConfigure extends AppCompatActivity {
             }
         });
 
-//        InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//        inputManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(),
-//                InputMethodManager.HIDE_NOT_ALWAYS);
-
-
-
         //dev+
-        TextView urlField = (TextView) findViewById(R.id.nameUrlValueEdit);
+//        TextView urlField = (TextView) findViewById(R.id.nameUrlValueEdit);
 //        urlField.setText("http://api.thingspeak.com/channels/99791/feeds.json?results=1");
 //        urlField.setText("http://46.251.48.58:6969/get_json/");
-        urlField.setText("http://46.251.48.58:6969/get_json_saved/");
+//        urlField.setText("http://46.251.48.58:6969/get_json_saved/");
         //dev-
 
         TextView refreshBtn = (TextView) findViewById(R.id.refreshBtnTv);
         refreshBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                getResponseAndUpdateList();
+                getResponseAndUpdateNameList();
             }
         });
-
-//        ListView namesListView = (ListView) findViewById(R.id.namesList);
-//        final DisplayJSONNames jsonTask = new DisplayJSONNames(namesListView, this);
-//        jsonTask.execute("http://api.thingspeak.com/channels/99791/feeds.json?results=1");
 
         //save settings button
         final Button saveButton = (Button) findViewById(R.id.save_settings_btn);
@@ -138,12 +181,33 @@ public class SensGraphConfigure extends AppCompatActivity {
                 //if there are no errors finishes activity as system expects and updates widget view
                 if (!hasErrors) {
 
-                    //not needed at the moment
-//                    SharedPreferences settings = getSharedPreferences(APP_NAME + "_" + String.valueOf(mAppWidgetId), 0);
-//                    SharedPreferences.Editor editor = settings.edit();
-//                    editor.putString("sensorNamePath", sensorNamePath);
-//                    editor.putString("sensorValuePath", sensorValuePath);
-//                    editor.commit();
+                    SharedPreferences settings = getSharedPreferences(APP_NAME, 0);// + "_" + String.valueOf(mAppWidgetId), 0);
+                    Set<String> usedUrls = new ArraySet<>();
+                    usedUrls = settings.getStringSet(USED_URLS_AUTOCOMPLETE_SHARED_PREF, usedUrls);
+
+                    //dev+ clear SharredPreferences
+//                    SharedPreferences.Editor ed = settings.edit();
+//                    usedUrls.add(url);
+//                    ed.remove(USED_URLS_AUTOCOMPLETE_SHARED_PREF);
+//                    ed.commit();
+                    //dev-
+
+                    if (!usedUrls.contains(url)) {
+                        SharedPreferences.Editor editor = settings.edit();
+                        usedUrls.add(url);
+                        editor.remove(USED_URLS_AUTOCOMPLETE_SHARED_PREF);
+                        editor.commit(); //apply() does not work correctly here
+                        editor.putStringSet(USED_URLS_AUTOCOMPLETE_SHARED_PREF, usedUrls);
+                        editor.apply();
+
+                        //dev+
+//                        usedUrls = settings.getStringSet(USED_URLS_AUTOCOMPLETE_SHARED_PREF, usedUrls);
+//                        dt.logV("usedUrls.size()", usedUrls.size());
+//                        for (String s : usedUrls) {
+//                            dt.logV("usedUrls", s);
+//                        }
+                        //dev-
+                    }
 
                     //save settings
                     SimpleDb sdb = SensGraphWidgetProvider.settings;
@@ -153,11 +217,12 @@ public class SensGraphConfigure extends AppCompatActivity {
                         sdb.setField(2,url);
                         //position 3 is for widget pendingIntent
                         sdb.setField(4,updateInterval);
+//                        sdb.setField(5, getDefaultLocale());
                         dt.logV("save settings updateInterval", updateInterval, "sensorName", sensorName,
                             "sensorValue", sensorValue, "url", url);
                     }
 
-                    //manual (no automatic) auto-update widget using SensGraphWidgetProvider class
+                    //manual first widget update using SensGraphWidgetProvider class
                     SensGraphWidgetProvider sensgraphWidgetProvider = new SensGraphWidgetProvider();
                     sensgraphWidgetProvider.onUpdate(v.getContext(),
                         AppWidgetManager.getInstance(v.getContext()),
@@ -184,11 +249,17 @@ public class SensGraphConfigure extends AppCompatActivity {
         });
     }
 
-    protected void getResponseAndUpdateList() {
+    protected void getResponseAndUpdateNameList() {
         final ListView namesListView = (ListView) findViewById(R.id.namesList);
         final DisplayJSONNames jsonTask = new DisplayJSONNames(namesListView, this);
         final TextView urlField = (TextView) findViewById(R.id.nameUrlValueEdit);
         url = urlField.getText().toString();
+        //clears last "/" char from the url, to ensure that there is no duplicate URLs saved in
+        //SharedPreferences with "/" and without "/" at the end
+        if (url.substring(url.length()-1).equals("/")) {
+            url = url.substring(0, url.length()-1);
+            urlField.setText(url);
+        }
         jsonTask.execute(url);
     }
 
@@ -209,6 +280,17 @@ public class SensGraphConfigure extends AppCompatActivity {
             .show();
     }
 
+//    @SuppressWarnings("deprecation")
+//    protected Locale getDefaultLocale() {
+//        Locale locale;
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) { // 24 and newer (Nougat 7)
+//            locale = getResources().getConfiguration().getLocales().get(0);
+//        } else { // 23 and older
+//            locale = getResources().getConfiguration().locale;
+//        }
+//        return locale;
+//    }
+
     private class DisplayJSONNames extends AsyncTask<String, Integer, String> {
         private ListView namesListView;
         private JSONWorker jWorker;
@@ -220,11 +302,11 @@ public class SensGraphConfigure extends AppCompatActivity {
             this.context = context;
         }
 
+        /**
+         * Returns JSON string from HttpResponse
+         * Uses just first element of strings param
+         */
         protected String doInBackground(String... strings) {
-            /**
-             * Returns JSON string from HttpResponse
-             * Uses just first element of strings param
-             */
             String response = "";
             if (strings.length > 0) {
                 JSONWorker jWorker = new JSONWorker();
@@ -237,67 +319,12 @@ public class SensGraphConfigure extends AppCompatActivity {
 //            setProgressPercent(progress[0]);
         }
 
+        /**
+         * Parses response, if response is error, user info msg will be shown
+         * */
         protected void onPostExecute(String result) {
-            jWorker.mainJsonObjFromString(result);
-            if (jWorker.mainJObjLoaded()) {
-
-                jWorker.makeNamesValuesLists();
-                CustomList cl = new CustomList(context, jWorker.namesList.toArray(new String[0]),
-                        jWorker.valuesList.toArray(new String[0]));
-                namesListView.setAdapter(cl);
-
-                namesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    public void onItemClick(AdapterView parent, View v, int position, long id) {
-                        /**
-                         * First clicked element sets sensorNamePath
-                         * Second - sets sensorValuePath
-                         * Click on already clicked element clears selection
-                         */
-                        String nameClicked;
-                        ExpandedTextView etv = (ExpandedTextView) v.findViewById(R.id.namesListTextView);
-
-                        nameClicked = etv.getText().toString();
-                        dt.logV("sensorName",sensorName, "sensorValue", sensorValue);
-                        if ((sensorName == null) && (sensorValue != nameClicked)) {
-                            sensorName = nameClicked;
-                            TextView tv = (TextView) findViewById(R.id.nameValueTv);
-                            tv.setText(sensorName);
-                        } else if ((sensorValue == null) && (sensorName != nameClicked)){
-                            sensorValue = nameClicked;
-                            TextView tv = (TextView) findViewById(R.id.valueValueTv);
-                            tv.setText(sensorValue);
-                        } else {
-                            //resets selections
-                            if (nameClicked == sensorName) {
-                                sensorName = null;
-                                TextView tv = (TextView) findViewById(R.id.nameValueTv);
-                                tv.setText(R.string.sensor_name_text_place_holder);
-                            }
-                            if (nameClicked == sensorValue) {
-                                sensorValue = null;
-                                TextView tv2 = (TextView) findViewById(R.id.valueValueTv);
-                                tv2.setText(R.string.sensor_value_text_place_holder);
-                            }
-                        }
-
-                        //dev+
-//                        if (sensorName != null) {
-//                            dt.logV("jWorker.getValueFromPath(sensorNamePath)", jWorker.getValueFromPath(sensorName), "sensorNamePath", sensorName);
-//                        }
-//                        if (sensorValue != null) {
-//                            dt.logV("jWorker.getValueFromPath(sensorValuePath)", jWorker.getValueFromPath(sensorValue), "sensorValuePath", sensorValue);
-//                        }
-                        //dev-
-                    }
-                });
-
-//                private OnItemClickListener mMessageClickedHandler = new OnItemClickListener() {
-//                    public void onItemClick(AdapterView parent, View v, int position, long id) {
-//                        // Do something in response to the click
-//                    }
-//                };
-            } else {
-                //clears selected name and value fields
+            String errStr = jWorker.parseJSONFromResponse(context, result);
+            if (!errStr.equals("")) { //error
                 final Resources res = getResources();
                 final TextView tvName = (TextView) findViewById(R.id.nameValueTv);
                 tvName.setText(res.getString(R.string.sensor_name_text_place_holder));
@@ -312,7 +339,48 @@ public class SensGraphConfigure extends AppCompatActivity {
 
                 //user info
                 View v = findViewById(R.id.activity_sens_graph_configure);
-                showInfoDialog(v, "Can not parse JSON from given URL");
+                showInfoDialog(v, errStr);
+            } else { //no error
+                jWorker.makeNamesValuesLists();
+                CustomList cl = new CustomList(context, jWorker.namesList.toArray(new String[0]),
+                        jWorker.valuesList.toArray(new String[0]));
+                namesListView.setAdapter(cl);
+
+                namesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    /**
+                     * First clicked element sets sensorNamePath
+                     * Second - sets sensorValuePath
+                     * Click on already clicked element clears selection
+                     */
+                    public void onItemClick(AdapterView parent, View v, int position, long id) {
+                        String nameClicked;
+                        ExpandedTextView etv = (ExpandedTextView) v.findViewById(R.id.namesListTextView);
+
+                        nameClicked = etv.getText().toString();
+                        dt.logV("sensorName", sensorName, "sensorValue", sensorValue);
+                        if ((sensorName == null) && (!sensorValue.equals(nameClicked))) {
+                            sensorName = nameClicked;
+                            TextView tv = (TextView) findViewById(R.id.nameValueTv);
+                            tv.setText(sensorName);
+                        } else if ((sensorValue == null) && (!sensorName.equals(nameClicked))) {
+                            sensorValue = nameClicked;
+                            TextView tv = (TextView) findViewById(R.id.valueValueTv);
+                            tv.setText(sensorValue);
+                        } else {
+                            //resets selections
+                            if (nameClicked.equals(sensorName)) {
+                                sensorName = null;
+                                TextView tv = (TextView) findViewById(R.id.nameValueTv);
+                                tv.setText(R.string.sensor_name_text_place_holder);
+                            }
+                            if (nameClicked.equals(sensorValue)) {
+                                sensorValue = null;
+                                TextView tv2 = (TextView) findViewById(R.id.valueValueTv);
+                                tv2.setText(R.string.sensor_value_text_place_holder);
+                            }
+                        }
+                    }
+                });
             }
         }
     }
