@@ -11,13 +11,13 @@ import android.widget.TextView;
  * Created by psylo on 17.3.26.
  */
 
-public class CustomList extends ArrayAdapter<String>{
+public class TwoTvArrayAdapter extends ArrayAdapter<String>{
 
     private final Activity context;
     private final String[] vals;
     private final String[] names;
 
-    public CustomList(Activity context, String[] names, String[] vals) {
+    public TwoTvArrayAdapter(Activity context, String[] names, String[] vals) {
         super(context, R.layout.names_list_item_layout, names);
         this.context = context;
         this.vals = vals;
