@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_sens_graph_configure"
     android:layout_width="match_parent"
@@ -10,96 +11,65 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="org.psylo.sensgraph.SensGraphConfigure">
 
+    <AutoCompleteTextView
+        android:id="@+id/nameUrlValueEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sensor_url_text_place_holder"
+        android:textAlignment="gravity"
+        android:textSize="@dimen/url_text_size"
+        android:textColor="@color/blue"
+        android:background="@color/greyDark"
+        android:padding="4dp"
+        android:inputType="text"
+        tools:ignore="LabelFor" />
+
     <TextView
-        android:text="@string/action_settings"
+        android:id="@+id/sensorNameTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/settingsTextView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"/>
+        android:text="@string/sensor_name_text_place_holder"
+        android:textAlignment="gravity"
+        android:textColor="@color/redLight"
+        android:textSize="@dimen/elements_text_size"
+        android:layout_below="@+id/nameUrlValueEdit"
+        android:maxHeight="100dp"
+        android:layout_marginStart="@dimen/textview_alignment_to_edittext_margin"
+        android:layout_marginTop="10dp"
+        android:layout_alignParentStart="true" />
 
-    <LinearLayout
-        android:id="@+id/linearLayoutUrl"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:weightSum="10"
-        android:layout_below="@+id/settingsTextView"
-        android:layout_alignParentStart="true">
-
-        <AutoCompleteTextView
-            android:id="@+id/nameUrlValueEdit"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:text="@string/sensor_url_text_place_holder"
-            android:textAlignment="gravity"
-            android:textSize="14dp"
-            android:inputType="text"/>
-
-        <TextView
-            android:id="@+id/refreshBtnTv"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="8"
-            android:background="@android:color/background_dark"
-            android:clickable="true"
-            android:minWidth="40dp"
-            android:text="@string/refresh_btn_text"
-            android:textColor="@color/blue" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayoutName"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:weightSum="4"
-        android:layout_below="@+id/settingsTextView"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="35dp">
-
-        <TextView
-            android:id="@+id/sensorNameTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:text="@string/sensor_name_text_place_holder"
-            android:textAlignment="gravity" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayoutValue"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:weightSum="4"
-        android:layout_marginTop="19dp"
-        android:layout_below="@+id/settingsTextView"
-        android:layout_alignTop="@+id/linearLayoutName">
-
-        <TextView
-            android:id="@+id/sensorValueTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:text="@string/sensor_value_text_place_holder"
-            android:textAlignment="textStart" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/sensorValueTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/redLight"
+        android:text="@string/sensor_value_text_place_holder"
+        android:textSize="@dimen/elements_text_size"
+        android:textAlignment="textStart"
+        android:layout_below="@+id/sensorNameTv"
+        android:maxHeight="100dp"
+        android:layout_marginStart="@dimen/textview_alignment_to_edittext_margin"
+        android:layout_marginTop="@dimen/top_margin_config"
+        android:layout_alignParentStart="true" />
 
     <LinearLayout
         android:id="@+id/linearLayoutUpdateTime"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:weightSum="5"
-        android:layout_marginTop="19dp"
-        android:layout_below="@+id/settingsTextView"
-        android:layout_alignTop="@+id/linearLayoutValue">
+        android:layout_below="@+id/sensorValueTv"
+        android:layout_marginTop="6dp"
+        android:layout_alignParentStart="true">
         <TextView
             android:id="@+id/updateTimeText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:text="@string/update_time_text"
-            android:textAlignment="textStart" />
+            android:textColor="@color/blue"
+            android:textSize="@dimen/elements_text_size"
+            android:textAlignment="textStart"
+            android:layout_marginStart="@dimen/textview_alignment_to_edittext_margin"/>
 
         <EditText
             android:id="@+id/updateIntervalEditText"
@@ -109,38 +79,39 @@
             android:inputType="number"
             android:text="@string/update_time_default_interval"
             android:textAlignment="gravity"
-            android:textSize="14dp" />
+            android:textColor="@color/blue"
+            android:background="@color/greyDark"
+            android:padding="4dp"
+            android:textSize="@dimen/elements_text_size"
+            tools:ignore="LabelFor" />
 
-        <TextView
-            android:id="@+id/helpBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="help"
-            android:textAlignment="textStart"
-            android:background="@color/magenta"/>
-        <!--<View-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_weight=""/>-->
     </LinearLayout>
 
-    <Button
-        android:text="Save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/save_settings_btn"
-        android:layout_marginBottom="60dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/settingsTextView" />
-
+    <!--Lygiuoti kartusu image view-->
     <ListView
         android:id="@+id/namesList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignTop="@+id/linearLayoutUpdateTime"
-        android:layout_marginTop="40dp"
-        android:layout_toEndOf="@+id/save_settings_btn"
-        android:elevation="1dp"/>
+        android:divider="@color/blue"
+        android:dividerHeight="1px"
+        android:scrollbarSize="10dp"
+        android:scrollbarThumbVertical="@drawable/custom_scrollbar"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/textview_alignment_to_edittext_margin"
+        android:layout_marginTop="@dimen/top_margin_config"
+        android:layout_below="@+id/linearLayoutUpdateTime"/>
+    <!--Lygiuoti kartusu list view-->
+    <ImageView
+        android:id="@+id/infinityLoaderView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/refresh_btn_text"
+        android:layout_alignParentStart="true"
+
+        android:layout_marginStart="@dimen/textview_alignment_to_edittext_margin"
+        android:layout_marginTop="@dimen/top_margin_config"
+        android:layout_below="@+id/linearLayoutUpdateTime"/>
 
 </RelativeLayout>
+    <!--android:minWidth="20dp"-->
+    <!--android:minHeight="20dp"-->

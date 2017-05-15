@@ -4,7 +4,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
-//import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 //import android.content.SharedPreferences;
@@ -12,14 +11,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.util.Date;
 import java.util.Locale;
-
-//import java.util.Random;
-//import java.net.URL;
 
 /**
  * AppWidgetProvider used for SensGraph widget
@@ -30,7 +25,7 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
 
     static final String TAG = "SensGraphWidgetProvider";
     static final String APP_NAME = "SensGraph";
-    static DevTools dt = new DevTools(); //dev
+    static final DevTools dt = new DevTools(); //dev
     protected static AlarmManager alarmManager;
     protected static SimpleDb settings = new SimpleDb(10);
 //    settings.entries.fields structure:
@@ -47,9 +42,7 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        final int count = appWidgetIds.length;
-        for (int i = 0; i < count; i++) {
-            int widgetId = appWidgetIds[i];
+        for (int widgetId : appWidgetIds) {
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(),
                     R.layout.simple_widget);
             Intent intent = new Intent(context, SensGraphWidgetProvider.class);
@@ -79,19 +72,17 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
                 }
 
                 //sets pending intent in position 3 (4) to reuse it in onDeleted() method to
-                // cancel alarmManager job
+                //cancel alarmManager job
                 long interval;
                 if (settings.getField(3) == null) {
                     settings.setField(3, updateWidgetPendingIntent);
                     if (settings.getField(4) != null) {
                         interval = 1000 * 60 * (Long) settings.getField(4); //minutes
                     } else {
-                        interval = 1000 * 60 * 30; //30 minutes
+                        interval = 1000 * 60 * 30; //default 30 minutes
                     }
                     alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(),
                             interval, updateWidgetPendingIntent);
-                    dt.logV("updateWidgetPendingIntent setRepeating", settings.getField(3),
-                            "widgetId", widgetId);
                 }
             }
         }
@@ -102,7 +93,7 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
      */
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
-        Log.v(TAG,String.format("onAppWidgetOptionsChanged wiID %03d", appWidgetId));
+//        Log.v(TAG,String.format("onAppWidgetOptionsChanged wiID %03d", appWidgetId));
     }
 
     @Override
@@ -115,7 +106,6 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
                 if (settings.getField(3) != null) {
                     PendingIntent pi = (PendingIntent) settings.getField(3);
                     alarmManager.cancel(pi);
-//                    dt.logV("onDeleted pi", pi, "alarmManager", alarmManager);
                 }
                 settings.deleteCurrEntry();
             }
@@ -146,7 +136,7 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
         private String sensorValuePath;
 
 
-        public UpdateViewFromJSON(Context context, RemoteViews views, int appWidgetID, AppWidgetManager appWidgetManager,
+        UpdateViewFromJSON(Context context, RemoteViews views, int appWidgetID, AppWidgetManager appWidgetManager,
                                   String nameName, String valueName){
             this.context = context;
             this.remoteViews = views;
@@ -158,7 +148,7 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
         }
 
         /**
-         * returns http response from String supplied
+         * returns http response from String URL supplied
          */
         protected String doInBackground(String... strings) {
             String response = "";
@@ -177,16 +167,21 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
             String errStr = jWorker.parseJSONFromResponse(context, result);
             if (errStr.equals("")) { //no error
                 jWorker.mainJsonObjFromString(result);
-                remoteViews.setTextViewText(R.id.sensorNameTextView, jWorker.getValueFromPath(sensorNamePath));
-                remoteViews.setTextViewText(R.id.sensorValueTextView, jWorker.getValueFromPath(sensorValuePath));
-                Date currSysTime = new Date();
-                currSysTime.setTime(System.currentTimeMillis());
-                remoteViews.setTextViewText(R.id.sensorUpdatedDtTextView, String.format(getDefaultLocale(context), "%1$tY.%1$tm.%1$td %1$tT", currSysTime));
-                widgetManager.updateAppWidget(WidgetID, remoteViews);
-            } else {
-                //cia padaryti kad rodytu klaida widgete
-                dt.logE("error occured getting Http repsonse, result = ", result);
+                remoteViews.setTextViewText(R.id.sensorNameTextView,
+                        jWorker.getValueFromPath(sensorNamePath));
+                remoteViews.setTextViewText(R.id.sensorValueTextView,
+                        jWorker.getValueFromPath(sensorValuePath));
+//                widgetManager.updateAppWidget(WidgetID, remoteViews);
+            } else { //error
+                remoteViews.setTextViewText(R.id.sensorNameTextView,
+                        context.getString(R.string.just_error) + " " + errStr);
+                remoteViews.setTextViewText(R.id.sensorValueTextView, "");
             }
+            Date currSysTime = new Date();
+            currSysTime.setTime(System.currentTimeMillis());
+            remoteViews.setTextViewText(R.id.sensorUpdatedDtTextView, String.format(
+                    getDefaultLocale(context), "%1$tY.%1$tm.%1$td %1$tT", currSysTime));
+            widgetManager.updateAppWidget(WidgetID, remoteViews);
         }
     }
 }

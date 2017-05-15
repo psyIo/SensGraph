@@ -2,7 +2,6 @@ package org.psylo.sensgraph;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,25 +24,34 @@ import java.util.Iterator;
  * Created by psylo on 17.3.3.
  */
 
-public class JSONWorker {
+class JSONWorker {
 
-    static final String TAG = "SensGraphJSONWorker"; //dev
-    static DevTools dt = new DevTools();
-    JSONObject mainJObj;
+    private static final String TAG = "SensGraphJSONWorker"; //dev
+    private static final String nameSep  = ":"; //separator used in JSON paths
+    private static final char nullChar = 0;//null char, used for list identification
+    private static final DevTools dt = new DevTools();
+    private JSONObject mainJObj;
     ArrayList<String> namesList;
     ArrayList<String> valuesList;
+
+    //error constants
+    private static final String ERR_GENERAL = "ERR_GENERAL"; //general not unindentified error
+    private static final String ERR_URL = "ERR_URL"; //URL error
+    private static final String ERR_TIMEOUT = "ERR_TIMEOUT"; //timeout error
+    private static final String ERR_IO = "ERR_IO"; //IO error
+    private static final String ERR_JSON = "ERR_JSON"; //IO error
 
     /**
      * Returns Http response
      * If error occures returns error code msg
-     * "err0 = Unknown error
-     * "err1 = URL parsing error
-     * "err2 = TimeOut error
-     * "err3 = IO error
+     * ERR_GENERAL = Unknown general error
+     * ERR_URL = URL parsing error
+     * ERR_TIMEOUT = TimeOut error
+     * ERR_IO = IO error
      * */
     String GetHttpResponse(String urlString) {
         URL url;
-        String response = "";
+        String response;
         try {
             url = new URL(urlString);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -52,53 +60,51 @@ public class JSONWorker {
             response = readStream(in);
             urlConnection.disconnect();
         } catch (MalformedURLException e) {
-            return "\"err1";
+            return ERR_URL;
         } catch (SocketTimeoutException e) {
-            return "\"err2";
+            return ERR_TIMEOUT;
         } catch (IOException e) {
-            return "\"err3";
+            return ERR_IO;
         } catch (Exception e) {
-            return "\"err0";
+            return ERR_GENERAL;
         }
         return response;
     }
 
-    public String parseJSONFromResponse(Context context, String response) {
+    String parseJSONFromResponse(Context context, String response) {
         String errMsg;
         errMsg = getFullErrorString(context, response); //checks if response is an error response
         if (errMsg.equals("")) { //no error
             errMsg = mainJsonObjFromString(response);
-            if (!errMsg.equals("")) { //error occured
+            if (!errMsg.equals("")) { //error
                 errMsg = getFullErrorString(context, errMsg);
             }
         }
         return errMsg;
     }
 
-    public String getFullErrorString(Context context, String strToParse) {
-        int errNo;
+    String getFullErrorString(Context context, String strToParse) {
         String errMsg = "";
         Resources res = context.getResources();
         try {
-            if (strToParse.substring(0, 4).equals("\"err")) {
-                errNo = Integer.parseInt(strToParse.substring(4));
-                switch (errNo) {
-                    case 1:
-                        errMsg = res.getString(R.string.json_worker_err1);
-                        break;
-                    case 2:
-                        errMsg = res.getString(R.string.json_worker_err2);
-                        break;
-                    case 3:
-                        errMsg = res.getString(R.string.json_worker_err3);
-                        break;
-                    case 4:
-                        errMsg = res.getString(R.string.json_worker_err4);
-                        break;
-                    default: //case 0:
-                        errMsg = res.getString(R.string.json_worker_err0);
-                        break;
-                }
+            switch (strToParse) {
+                case ERR_URL:
+                    errMsg = res.getString(R.string.json_worker_err1);
+                    break;
+                case ERR_TIMEOUT:
+                    errMsg = res.getString(R.string.json_worker_err2);
+                    break;
+                case ERR_IO:
+                    errMsg = res.getString(R.string.json_worker_err3);
+                    break;
+                case ERR_JSON:
+                    errMsg = res.getString(R.string.json_worker_err4);
+                    break;
+                case ERR_GENERAL:
+                    errMsg = res.getString(R.string.json_worker_err0);
+                    break;
+                default: //nor error
+                    break;
             }
         } catch (Exception e) {
             errMsg = res.getString(R.string.json_worker_err00);
@@ -106,8 +112,7 @@ public class JSONWorker {
         return errMsg;
     }
 
-    public static String readStream(InputStream is) {
-
+    static String readStream(InputStream is) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
 
@@ -118,61 +123,56 @@ public class JSONWorker {
                 sb.append("\n");
             }
         } catch (IOException e) {
-            Log.e(TAG, "IOException", e);//dev
+            dt.logE(TAG, e);
         } finally {
             try {
                 is.close();
             } catch (IOException e) {
-                Log.e(TAG, "IOException", e); //dev
+                dt.logE(TAG, e);
             }
         }
         return sb.toString();
     }
 
-    public String mainJsonObjFromString(String jString) {
+    String mainJsonObjFromString(String jString) {
         String errStr = "";
         try {
             mainJObj = new JSONObject(jString);
         } catch (JSONException e) {
-            errStr = "\"err4";
-            Log.e(TAG, "JSONException ", e); //dev
+            errStr = ERR_JSON;
         }
         return errStr;
     }
 
-//    public Boolean makeJsonFromHttpResponse(String urlString) {
-//        mainJsonObjFromString(GetHttpResponse(urlString));
-//        if (mainJObj == null) {
-//            return false;
-//        } else {
-//            return true;
-//        }
-//    }
-
-//    public void makeNamesValuesLists() {
-//        namesList = makeNamesValuesLists();
-//    }
-
-    protected void makeNamesValuesLists() {
+    void makeNamesValuesLists() {
         namesList = new ArrayList<>();
         valuesList = new ArrayList<>();
         if (mainJObjLoaded()) {
-            addNamesFromJsonObjectToList(namesList, valuesList, mainJObj, "/");
+            dt.logV(TAG, "mainJObj.toString()", mainJObj.toString());
+            addNamesFromJsonObjectToList(namesList, valuesList, mainJObj, "", 0);
         }
-//        return namesList;
     }
 
     private void addNamesFromJSONArrayToList(ArrayList<String> nameList, ArrayList<String> valueList,
-                                            JSONArray jArray, String parentNames) {
+                                            JSONArray jArray, String parentNames, int level) {
         String localNames;
+        int locLevel = level + 1;
         for (int i = 0; i < jArray.length(); i++) {
             Object obj = jArray.opt(i);
             if (obj != null) {
-                localNames = parentNames + "[" + String.valueOf(i) +"]";
+                localNames = parentNames;
+                if (level > 0) {
+                    //null char added to identify tabbed text later parsing path
+                    localNames += nullChar;
+                    localNames += repeatedString("  ", level);
+                }
+                localNames += "\0[" + String.valueOf(i) +"]\0:";
                 if (obj instanceof JSONObject) {
-                    addNamesFromJsonObjectToList(nameList, valueList, (JSONObject) obj, localNames + "/"); //sets next element JSONObject
+                    localNames += "\n";
+                    addNamesFromJsonObjectToList(nameList, valueList, (JSONObject) obj, localNames, locLevel); //sets next element JSONObject
                 } else if (obj instanceof JSONArray) {
-                    addNamesFromJSONArrayToList(nameList, valueList, (JSONArray) obj, localNames + "/"); //sets next element JSONArray
+                    localNames += "\n";
+                    addNamesFromJSONArrayToList(nameList, valueList, (JSONArray) obj, localNames, locLevel); //sets next element JSONArray
                 } else { //just a value String, Boolean etc.
                     nameList.add(localNames);
                     valueList.add(clearNotValueSymbols(obj.toString()));
@@ -190,37 +190,44 @@ public class JSONWorker {
      *
      */
     private void addNamesFromJsonObjectToList(ArrayList<String> namesList, ArrayList<String> valuesList,
-                                             JSONObject jObj, String parentNames) {
+                                             JSONObject jObj, String parentNames, int level) {
         Iterator<String> namesIter = jObj.keys();
         String currName;
         String localNames;
         Object obj;
         JSONObject jsonObj;
         JSONArray jsonArr;
+        int locLevel = level + 1;
 
         while (namesIter.hasNext()) {
             currName = namesIter.next();
-            if (currName.equals("")) {
-                localNames = parentNames + "\"\""; //indicates empty string
-            } else {
-                localNames = parentNames + currName;
+            localNames = parentNames;
+            if (level > 0) {
+                localNames = localNames + nullChar + repeatedString(" ", level);
             }
-            localNames += "/";
+            if (currName.equals("")) {
+                localNames = localNames + "\"\""; //indicates empty string
+            } else {
+                    localNames = localNames + "\"" + currName + "\"";
+            }
+            localNames += nameSep;
             obj = jObj.opt(currName);
             if (obj != null) {
                 if (obj instanceof JSONObject) {
                     try {
                         jsonObj = jObj.getJSONObject(currName); //gets value
-                        addNamesFromJsonObjectToList(namesList, valuesList, jsonObj, localNames);
+                        localNames += "\n";
+                        addNamesFromJsonObjectToList(namesList, valuesList, jsonObj, localNames, locLevel);
                     } catch (Exception e) {
-                        Log.e(TAG, "Exception", e);
+                        dt.logE(TAG, e);
                     }
                 } else if (obj instanceof JSONArray) {
                     try {
                         jsonArr = jObj.getJSONArray(currName);
-                        addNamesFromJSONArrayToList(namesList, valuesList, jsonArr, localNames);
+                        localNames += "\n";
+                        addNamesFromJSONArrayToList(namesList, valuesList, jsonArr, localNames, locLevel);
                     } catch (Exception e) {
-                        Log.e(TAG, "Exception", e);
+                        dt.logE(TAG, e);
                     }
                 } else { //just a value String, Boolean etc.
                     namesList.add(localNames);
@@ -234,30 +241,33 @@ public class JSONWorker {
         if (mainJObjLoaded() && (path != null) && (!path.equals(""))) {
             JSONObject jObj;
             JSONArray jArr = new JSONArray();
-            String sep = "/";
             Object valueObj = new Object();
             int listStartIdx;
             int listIdx = -1;
-            dt.logV(TAG, "getValueFromPath path", path);
+//            dt.logV(TAG, "getValueFromPath path", path);
             jObj = mainJObj;
-            path = path.substring(1); //removes first separator symbol
-            String[] pathList = path.split(sep);
+
+            //clears unnecessary \" chars and converts element separators to \", to split later
+            path = path.substring(1)
+                    .replace("\":\"", "\"") //obj, next obj
+                    .replace("\":", "\"")   //last obj
+                    .replace("]\0:\0[", "]\"\0[") //list element next list element
+                    .replace("]\0:", "]");  //list element end
+            dt.logV(TAG, "getValueFromPath path replaced", path);
+            String[] pathList = path.split("\"");
             for (String name : pathList) {
-                dt.logV("name", name);
+                dt.logV(TAG, "name", name);
                 if (name.equals("\"\"")) { //empty string in path saved as ""
                     name = "";
                 } else {
                     listIdx = -1;
                     //list name processing
                     if (name.substring(name.length() - 1).equals("]")) {
-                        listStartIdx = name.lastIndexOf("[");
-                        listIdx = Integer.parseInt(name.substring(listStartIdx + 1, name.length() - 1));
-                        if (listIdx < 0) {
-                            dt.logE(TAG, "getValueFromPath() Error parsing path listIdx < 0");
-                            return "";
+                        listStartIdx = name.lastIndexOf("\0[");
+                        dt.logV(TAG, "listStartIdx", listStartIdx);
+                        if (listStartIdx > -1) {
+                            listIdx = Integer.parseInt(name.substring(listStartIdx + 2, name.length() - 1));
                         }
-                        name = name.substring(0, listStartIdx);
-                        dt.logV("name", name, "listIdx", listIdx);
                     }
                 }
                 if (listIdx > -1) { //list element
@@ -265,7 +275,8 @@ public class JSONWorker {
                 } else {
                     valueObj = jObj.opt(name);
                 }
-                dt.logV("valueObj", valueObj);
+//                dt.logV(TAG, "getValueFromPath name", name);
+//                dt.logV(TAG, "valueObj", valueObj);
                 if (valueObj instanceof JSONObject) {
                     jObj = (JSONObject) valueObj;
                 } else if (valueObj instanceof JSONArray) {
@@ -285,58 +296,17 @@ public class JSONWorker {
         }
     }
 
-    int getArrayIDFromName(JSONArray jarr, String name) {
-        //list in list is not allowed!
-        int pos = -1;
-        Object obj;
-        JSONObject jobj;
-        String key;
-        Boolean bIDFound = false;
-//        dt.logV("getArrayIDFromName jarr name jarr.length()", jarr, name, jarr.length());
-        for (int i = 0; i < jarr.length(); i++) {
-            obj = jarr.opt(i);
-            if (obj instanceof JSONObject) {
-                jobj = (JSONObject) obj;
-                Iterator<String> namesIter = jobj.keys();
-                while (namesIter.hasNext()) {
-//                    key = namesIter.next().toString();
-                    key = namesIter.next();
-                    if (name.equals(key)) {
-                        pos = i;
-                        bIDFound = true;
-                        break;
-                    }
-                }
-            }
-            if (obj instanceof JSONArray) {
-                jarr = (JSONArray) obj;
-                if (getArrayIDFromName(jarr, name) > -1) {
-                    pos = i;
-                    bIDFound = true;
-                    break;
-                }
-            }
-            if (bIDFound) {
-                break;
-            }
-        }
-        return pos;
-    }
-
     private String clearNotValueSymbols(String strToClear) {
         return strToClear.replace("\n", "").replace("\r", "");
     }
 
-//    private String returnOnlyNameIfList(String str) {
-//        if (str.lastIndexOf("]") == (str.length() - 1)) {
-//
-//        }
-//        if (name.indexOf(liInd) == (name.length() - liInd.length())) { //element is a pathList
-//            name = name.substring(0, name.length() - liInd.length());
-//        }
-//    }
-
-
+    private String repeatedString(String strToRepeat, int times) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < times; i++) {
+            sb.append(strToRepeat);
+        }
+        return sb.toString();
+    }
 }
 
 

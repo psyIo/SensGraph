@@ -1,6 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">SensGraph</string>
-    <string name="settings_short">nust</string>
-    <string name="action_settings">Nustatymai</string>
+
+    <string name="sensor_name_text">Pavadinimas:</string>
+    <string name="sensor_value_text">Reikšmė:</string>
+    <string name="sensor_name_text_place_holder">Pavadinimas: Nepasirinktas</string>
+    <string name="sensor_value_text_place_holder">Reikšmė: Nepasirinkta</string>
+    <string name="sensor_url_text_place_holder">Įveskite URL</string>
+    <string name="refresh_btn_text">atnaujinti</string>
+    <string name="update_time_text">Atnaujinimo dažnis (min)</string>
+    <string name="update_time_default_interval">30</string>
+    <string name="just_error">Klaida!!!</string>
+
+    <string name="menu_save">Išsaugoti</string>
+    <string name="menu_refresh">Atnaujinti</string>
+    <string name="menu_help">Pagalba</string>
+
+    <string name="json_worker_err00">Nepavyko apdoroti gauto atsakymo iš URL</string>
+    <string name="json_worker_err0">Nežinoma klaida</string>
+    <string name="json_worker_err1">Nepavyko apdoroti įvesto URL</string>
+    <string name="json_worker_err2">Nepavyko prisijungti per numatytą laiką</string>
+    <string name="json_worker_err3">Nepavyko prisijungti prie nurodyto URL</string>
+    <string name="json_worker_err4">Nepavyko pavesrti atsakymo į JSON objektą</string>
+
+    <string name="config_activity_error_msg_1">Atnaujinimo dažnis: negali būti lygus 0 ar tuščias</string>
+    <string name="config_activity_error_msg_2">Klaida apdorojant aptnaujinimo dažnį</string>
+
+    <string name="help_info_text_1">1. Įveskite URL ir atnaujinkite kad gautumėte JSON atsakymą</string>
+    <string name="help_info_text_2">2. Pasirinkite sensoriaus Pavadinimą ir Reikšmę, kurie bus vaizduojami valdiklyje</string>
+    <string name="help_info_text_3">3. Paspauskite ant jau parinkto pavadinimo ar reikšmės, kad panaikinti pasirinkimą</string>
+    <string name="help_info_text_4">4. Įveskite atnaujinimo dažnį minutėmis</string>
+    <string name="help_info_text_5">5. Paspauskite migtuką išsaugoti, kad sukurti valdiklį</string>
+    <string name="help_info_text_6">6. Paspauskite ant valdiklio, kad jį atnaujinti bet kuriuo metu</string>
 </resources>

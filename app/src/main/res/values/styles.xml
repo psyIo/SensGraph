@@ -1,11 +1,39 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/black</item> <!--Pavadinimo fonas virsuj-->
+        <item name="colorPrimaryDark">@color/black</item>    <!--Status baras virsuj-->
+        <item name="colorAccent">@color/blue</item> <!--Edit text ir aplamai akcento spalva-->
+        <item name="android:background">@color/black</item>
+        <item name="android:alertDialogStyle">@style/AlertDialogCustom</item>
+        <item name="alertDialogTheme">@style/AlertDialogCustom</item>
+        <item name="android:actionBarStyle">@style/ActionBarCustom</item>
+        <item name="android:titleTextStyle">@style/TitleTextStyleCustom</item>
+        <item name="android:textColorPrimary">@color/blue</item> <!--kazko neveikia-->
+    </style>
+
+    <style name="AlertDialogCustom" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="android:textColor">@color/greenLight</item>
+        <item name="android:textColorSecondary">@color/redLight</item>
+        <item name="android:background">@color/greyDark</item>
+        <item name="android:textColorPrimary">@color/blue</item>
+    </style>
+
+    <style name="ActionBarCustom" parent="Widget.AppCompat.ActionBar.Solid">
+        <item name="titleTextStyle">@style/ActionBarTitleStyle</item>
+
+    </style>
+
+    <style name="ActionBarTitleStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/blue</item>
+        <item name="background">@color/magenta</item>
+    </style>
+
+    <!--kazko neveikia-->
+    <style name="TitleTextStyleCustom" parent="TextAppearance.AppCompat.Title">
+        <item name="android:textColor">@color/blue</item>
+        <item name="android:background">@color/redLight</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

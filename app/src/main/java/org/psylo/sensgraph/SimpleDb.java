@@ -1,50 +1,40 @@
 package org.psylo.sensgraph;
 
-//import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Simple db which uses manually set unique IDs
+ * Single id can have limited number of fields (numberOfFields var)
  * Created by psylo on 17.3.23.
  */
 
-public class SimpleDb {
+class SimpleDb {
     final static String TAG = "SimpleDb";
     List ids;
     private int numberOfFields;
     private int currEntryIdx;
     private List entries;
     private Entry currEntry;
-//    DevTools dt = new DevTools(); //dev
 
-
-//    public SimpleDb() {
-//        this.ids = new ArrayList<>(); //widget id
-//        this.entries = new ArrayList<>(); //entries for widget
-//        this.numberOfFields = 10;
-//    }
-
-    public SimpleDb(int size) {
+    SimpleDb(int size) {
         this.ids = new ArrayList<>(); //widget id
         this.entries = new ArrayList<>(); //entries for widget
         this.numberOfFields = size; //
     }
 
-    public Boolean getCurrEntry(int id) {
+    Boolean getCurrEntry(int id) {
         int idx = ids.indexOf(id);
         if (idx > -1) {
             currEntryIdx = idx;
             currEntry = (Entry) entries.get(idx);
-//            dt.logV("getCurrEntry currEntry", currEntry);
             return true;
         } else {
             return false;
         }
     }
 
-    public Boolean createEntry(int id) {
+    Boolean createEntry(int id) {
         if (getCurrEntry(id)) {
             return false;
         }
@@ -54,7 +44,7 @@ public class SimpleDb {
         return true;
     }
 
-    public Boolean deleteEntry(int id) {
+    Boolean deleteEntry(int id) {
         if (getCurrEntry(id)) {
             ids.remove(currEntryIdx);
             entries.remove(currEntryIdx);
@@ -65,7 +55,7 @@ public class SimpleDb {
         }
     }
 
-    public Boolean deleteCurrEntry() {
+    Boolean deleteCurrEntry() {
         try {
             ids.remove(currEntryIdx);
             entries.remove(currEntryIdx);
@@ -75,7 +65,7 @@ public class SimpleDb {
         return true;
     }
 
-    public Object getField(int fieldIdx) {
+    Object getField(int fieldIdx) {
         if (fieldIdx < numberOfFields) {
             return currEntry.fields[fieldIdx];
         } else {
@@ -83,7 +73,7 @@ public class SimpleDb {
         }
     }
 
-    public Boolean setField(int fieldIdx, Object valueToSet) {
+    Boolean setField(int fieldIdx, Object valueToSet) {
         if (fieldIdx < numberOfFields) {
             currEntry.fields[fieldIdx] = valueToSet;
             return true;
@@ -91,10 +81,10 @@ public class SimpleDb {
         return false;
     }
 
-    public class Entry {
+    class Entry {
         private Object[] fields;
 
-        public Entry() {
+        Entry() {
             this.fields = new Object[numberOfFields];
         }
     }
