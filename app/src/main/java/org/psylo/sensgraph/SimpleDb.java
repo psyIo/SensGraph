@@ -88,4 +88,5 @@ class SimpleDb {
             this.fields = new Object[numberOfFields];
         }
     }
+
 }

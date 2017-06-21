@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
+import android.support.v7.view.menu.ActionMenuItemView;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +31,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 
@@ -44,12 +47,14 @@ public class SensGraphConfigure extends AppCompatActivity {
     protected String url; //url to get response from
     protected Long updateInterval;
     private Resources res;
+    private Boolean bConfigOkToSaveState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         res = getResources();
         setContentView(R.layout.activity_sensgraph_configure);
+        bConfigOkToSaveState = false;
 
         //sets saved used URLs saved list for autocompletion
         final AutoCompleteTextView urlAutoCompleteTv = (AutoCompleteTextView) findViewById(R.id.nameUrlValueEdit);
@@ -92,11 +97,15 @@ public class SensGraphConfigure extends AppCompatActivity {
                 //if action is DONE or NEXT then updates list and hides softKeyboard
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    hideSoftInputAndUpdateList();
+//                    hideSoftInputAndUpdateList();
+                    hideSoftInput();
+                    configHasErrors(v, false);
                     handled = true;
                 }
                 if (actionId == EditorInfo.IME_ACTION_NEXT) { //next is nameList which is focused and softKeyboard is shown, and we do not want that
-                    hideSoftInputAndUpdateList();
+//                    hideSoftInputAndUpdateList();
+                    hideSoftInput();
+                    configHasErrors(v, false);
                     handled = true;
                 }
                 return handled;
@@ -170,6 +179,7 @@ public class SensGraphConfigure extends AppCompatActivity {
         sensorNameTv.setText(res.getString(R.string.sensor_name_text_place_holder));
         sensorNameTv.setTextColor(getColorVersionSafe(R.color.redLight));
         sensorName = null;
+        setSaveBtnState(false);
     }
 
     private void resetValue() {
@@ -177,6 +187,62 @@ public class SensGraphConfigure extends AppCompatActivity {
         sensorValueTv.setText(res.getString(R.string.sensor_value_text_place_holder));
         sensorValueTv.setTextColor(getColorVersionSafe(R.color.redLight));
         sensorValue = null;
+        setSaveBtnState(false);
+    }
+
+    private void setSaveBtnState(Boolean stateOkToSave) {
+        if (bConfigOkToSaveState != stateOkToSave) {
+            ActionMenuItemView mi = (ActionMenuItemView) findViewById(R.id.action_save);
+            if (stateOkToSave) {
+                //here ok, gradle has lintOptions {disable 'RestrictedApi'} option added
+                mi.setIcon(getDrawableVersionSafe(R.drawable.save_btn_ok_60));
+            } else {
+                mi.setIcon(getDrawableVersionSafe(R.drawable.save_btn_60));
+            }
+            dt.logV("setSaveBtnState", "stateOkToSave", stateOkToSave);
+            bConfigOkToSaveState = stateOkToSave;
+        }
+    }
+
+    private Boolean configHasErrors(View v, Boolean showDialog) {
+        Boolean bHasErrors = false;
+        StringBuilder infoSb = new StringBuilder();
+
+        final TextView tvName = (TextView) findViewById(R.id.sensorNameTv);
+        if (tvName.getText() == res.getString(R.string.sensor_name_text_place_holder)) {
+            addInfoString(infoSb, getString(R.string.sensor_name_text_place_holder));
+            bHasErrors = true;
+        } else {
+            sensorName = tvName.getText().toString();
+            sensorName = sensorName.substring(res.getString(R.string.sensor_name_text).length() + 1);
+        }
+        final TextView tvValue = (TextView) findViewById(R.id.sensorValueTv);
+        if (tvValue.getText() == res.getString(R.string.sensor_value_text_place_holder)) {
+            addInfoString(infoSb, getString(R.string.sensor_value_text_place_holder));
+            bHasErrors = true;
+        } else {
+            sensorValue = tvValue.getText().toString();
+            sensorValue = sensorValue.substring(res.getString(R.string.sensor_value_text).length() + 1);
+        }
+
+        final EditText etUpdateInterval = (EditText) findViewById(R.id.updateIntervalEditText);
+        if (etUpdateInterval.getText().toString().equals("0") || etUpdateInterval.getText().toString().equals("")) {
+            addInfoString(infoSb, getString(R.string.config_activity_error_msg_1));
+            bHasErrors = true;
+        } else {
+            try {
+                updateInterval = Long.parseLong(etUpdateInterval.getText().toString());
+            } catch (Exception e) {
+                bHasErrors = true;
+                addInfoString(infoSb, getString(R.string.config_activity_error_msg_2));
+                dt.logE(TAG, e);
+            }
+        }
+        setSaveBtnState(!bHasErrors);
+        if (bHasErrors && showDialog) {
+            showInfoDialog(v, infoSb.toString());
+        }
+        return bHasErrors;
     }
 
     protected void getResponseAndUpdateNameList() {
@@ -219,50 +285,53 @@ public class SensGraphConfigure extends AppCompatActivity {
      * */
     protected void saveAndFinnish(View v) {
         int mAppWidgetId = 0;
-        Boolean hasErrors = false;
+//        Boolean hasErrors = false;
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        StringBuilder infoSb = new StringBuilder();
+//        StringBuilder infoSb = new StringBuilder();
         if (extras != null) {
             mAppWidgetId = extras.getInt(
                     AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID);
         }
 
-        final TextView tvName = (TextView) findViewById(R.id.sensorNameTv);
-        if (tvName.getText() == res.getString(R.string.sensor_name_text_place_holder)) {
-            addInfoString(infoSb, getString(R.string.sensor_name_text_place_holder));
-            hasErrors = true;
-        } else {
-            sensorName = tvName.getText().toString();
-            sensorName = sensorName.substring(res.getString(R.string.sensor_name_text).length() + 1);
-        }
-        final TextView tvValue = (TextView) findViewById(R.id.sensorValueTv);
-        if (tvValue.getText() == res.getString(R.string.sensor_value_text_place_holder)) {
-            addInfoString(infoSb, getString(R.string.sensor_value_text_place_holder));
-            hasErrors = true;
-        } else {
-            sensorValue = tvValue.getText().toString();
-            sensorValue = sensorValue.substring(res.getString(R.string.sensor_value_text).length() + 1);
-        }
-
-        final EditText etUpdateInterval = (EditText) findViewById(R.id.updateIntervalEditText);
-        if (etUpdateInterval.getText().toString().equals("0") || etUpdateInterval.getText().toString().equals("")) {
-            addInfoString(infoSb, getString(R.string.config_activity_error_msg_1));
-            hasErrors = true;
-        } else {
-            try {
-                updateInterval = Long.parseLong(etUpdateInterval.getText().toString());
-            } catch (Exception e) {
-                hasErrors = true;
-                addInfoString(infoSb, getString(R.string.config_activity_error_msg_2));
-                dt.logE(TAG, e);
-            }
-        }
+//        final TextView tvName = (TextView) findViewById(R.id.sensorNameTv);
+//        if (tvName.getText() == res.getString(R.string.sensor_name_text_place_holder)) {
+//            addInfoString(infoSb, getString(R.string.sensor_name_text_place_holder));
+//            hasErrors = true;
+//        } else {
+//            sensorName = tvName.getText().toString();
+//            sensorName = sensorName.substring(res.getString(R.string.sensor_name_text).length() + 1);
+//        }
+//        final TextView tvValue = (TextView) findViewById(R.id.sensorValueTv);
+//        if (tvValue.getText() == res.getString(R.string.sensor_value_text_place_holder)) {
+//            addInfoString(infoSb, getString(R.string.sensor_value_text_place_holder));
+//            hasErrors = true;
+//        } else {
+//            sensorValue = tvValue.getText().toString();
+//            sensorValue = sensorValue.substring(res.getString(R.string.sensor_value_text).length() + 1);
+//        }
+//
+//        final EditText etUpdateInterval = (EditText) findViewById(R.id.updateIntervalEditText);
+//        if (etUpdateInterval.getText().toString().equals("0") || etUpdateInterval.getText().toString().equals("")) {
+//            addInfoString(infoSb, getString(R.string.config_activity_error_msg_1));
+//            hasErrors = true;
+//        } else {
+//            try {
+//                updateInterval = Long.parseLong(etUpdateInterval.getText().toString());
+//            } catch (Exception e) {
+//                hasErrors = true;
+//                addInfoString(infoSb, getString(R.string.config_activity_error_msg_2));
+//                dt.logE(TAG, e);
+//            }
+//        }
 
         //if there are no errors finishes activity as system expects and updates widget view
-        if (!hasErrors) {
-
+        if (!configHasErrors(v, true)) {
+//        if (hasErrors) {
+//            setSaveBtnState(false);
+//            showInfoDialog(v, infoSb.toString());
+//        } else {
             SharedPreferences settings = getSharedPreferences(APP_NAME, 0);// + "_" + String.valueOf(mAppWidgetId), 0);
             Set<String> usedUrls = new ArraySet<>();
             usedUrls = settings.getStringSet(USED_URLS_AUTOCOMPLETE_SHARED_PREF, usedUrls);
@@ -286,11 +355,12 @@ public class SensGraphConfigure extends AppCompatActivity {
             //save settings
             SimpleDb sdb = SensGraphWidgetProvider.settings;
             if (sdb.createEntry(mAppWidgetId)) {
-                sdb.setField(0,sensorName);
-                sdb.setField(1,sensorValue);
-                sdb.setField(2,url);
+                sdb.setField(0, sensorName);
+                sdb.setField(1, sensorValue);
+                sdb.setField(2, url);
                 //position 3 is for widget pendingIntent
-                sdb.setField(4,updateInterval);
+                sdb.setField(4, updateInterval);
+                sdb.setField(5, new ArrayList()); //used to save values for graph
 //                dt.logV(TAG, "save settings updateInterval", updateInterval, "sensorName", sensorName,
 //                        "sensorValue", sensorValue, "url", url);
             }
@@ -308,8 +378,6 @@ public class SensGraphConfigure extends AppCompatActivity {
             resultIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
             setResult(RESULT_OK, resultIntent);
             finish();
-        } else {
-            showInfoDialog(v, infoSb.toString());
         }
     }
 
@@ -392,6 +460,8 @@ public class SensGraphConfigure extends AppCompatActivity {
         return result;
     }
 
+//    private
+
     /**
      * Return Color int as per Android SDK version
      * */
@@ -462,6 +532,7 @@ public class SensGraphConfigure extends AppCompatActivity {
                 //user info
                 View v = findViewById(R.id.activity_sens_graph_configure);
                 showInfoDialog(v, errStr);
+                setSaveBtnState(false);
             } else { //no error
                 jWorker.makeNamesValuesLists();
                 TwoTvArrayAdapter twoTvArrayAdapter = new TwoTvArrayAdapter(context,
@@ -494,6 +565,7 @@ public class SensGraphConfigure extends AppCompatActivity {
                                 tv.setTextColor(getColorVersionSafe(R.color.greenLight));
                             }
                         }
+                        configHasErrors(v, false);
                     }
 
                     private String clearControlChars(String strToProcess) {

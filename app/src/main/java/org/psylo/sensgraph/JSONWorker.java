@@ -27,8 +27,8 @@ import java.util.Iterator;
 class JSONWorker {
 
     private static final String TAG = "SensGraphJSONWorker"; //dev
-    private static final String nameSep  = ":"; //separator used in JSON paths
-    private static final char nullChar = 0;//null char, used for list identification
+    private static final String NAME_SEP = ":"; //separator used in JSON paths
+    private static final char NULL_CHAR = 0;//null char, used for list identification
     private static final DevTools dt = new DevTools();
     private JSONObject mainJObj;
     ArrayList<String> namesList;
@@ -163,7 +163,7 @@ class JSONWorker {
                 localNames = parentNames;
                 if (level > 0) {
                     //null char added to identify tabbed text later parsing path
-                    localNames += nullChar;
+                    localNames += NULL_CHAR;
                     localNames += repeatedString("  ", level);
                 }
                 localNames += "\0[" + String.valueOf(i) +"]\0:";
@@ -203,14 +203,14 @@ class JSONWorker {
             currName = namesIter.next();
             localNames = parentNames;
             if (level > 0) {
-                localNames = localNames + nullChar + repeatedString(" ", level);
+                localNames = localNames + NULL_CHAR + repeatedString(" ", level);
             }
             if (currName.equals("")) {
                 localNames = localNames + "\"\""; //indicates empty string
             } else {
                     localNames = localNames + "\"" + currName + "\"";
             }
-            localNames += nameSep;
+            localNames += NAME_SEP;
             obj = jObj.opt(currName);
             if (obj != null) {
                 if (obj instanceof JSONObject) {
@@ -253,18 +253,18 @@ class JSONWorker {
                     .replace("\":", "\"")   //last obj
                     .replace("]\0:\0[", "]\"\0[") //list element next list element
                     .replace("]\0:", "]");  //list element end
-            dt.logV(TAG, "getValueFromPath path replaced", path);
+//            dt.logV(TAG, "getValueFromPath path replaced", path);
             String[] pathList = path.split("\"");
             for (String name : pathList) {
-                dt.logV(TAG, "name", name);
+//                dt.logV(TAG, "name", name);
                 if (name.equals("\"\"")) { //empty string in path saved as ""
                     name = "";
                 } else {
-                    listIdx = -1;
                     //list name processing
+                    listIdx = -1;
                     if (name.substring(name.length() - 1).equals("]")) {
                         listStartIdx = name.lastIndexOf("\0[");
-                        dt.logV(TAG, "listStartIdx", listStartIdx);
+//                        dt.logV(TAG, "listStartIdx", listStartIdx);
                         if (listStartIdx > -1) {
                             listIdx = Integer.parseInt(name.substring(listStartIdx + 2, name.length() - 1));
                         }
@@ -275,8 +275,6 @@ class JSONWorker {
                 } else {
                     valueObj = jObj.opt(name);
                 }
-//                dt.logV(TAG, "getValueFromPath name", name);
-//                dt.logV(TAG, "valueObj", valueObj);
                 if (valueObj instanceof JSONObject) {
                     jObj = (JSONObject) valueObj;
                 } else if (valueObj instanceof JSONArray) {
