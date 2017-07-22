@@ -5,7 +5,7 @@
         <item name="colorPrimary">@color/black</item> <!--Pavadinimo fonas virsuj-->
         <item name="colorPrimaryDark">@color/black</item>    <!--Status baras virsuj-->
         <item name="colorAccent">@color/blue</item> <!--Edit text ir aplamai akcento spalva-->
-        <item name="android:background">@color/black</item>
+        <!--<item name="android:background">@color/black</item>-->
         <item name="android:alertDialogStyle">@style/AlertDialogCustom</item>
         <item name="alertDialogTheme">@style/AlertDialogCustom</item>
         <item name="android:actionBarStyle">@style/ActionBarCustom</item>
@@ -27,7 +27,7 @@
 
     <style name="ActionBarTitleStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/blue</item>
-        <item name="background">@color/magenta</item>
+        <!--<item name="background">@color/magenta</item>-->
     </style>
 
     <!--kazko neveikia-->

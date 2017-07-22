@@ -26,13 +26,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 
@@ -58,11 +58,12 @@ public class SensGraphConfigure extends AppCompatActivity {
 
         //sets saved used URLs saved list for autocompletion
         final AutoCompleteTextView urlAutoCompleteTv = (AutoCompleteTextView) findViewById(R.id.nameUrlValueEdit);
-        SharedPreferences settings = getSharedPreferences(APP_NAME, 0);
+        SharedPreferences sharedPrefs = getSharedPreferences(APP_NAME, 0);
         Set<String> usedUrls = new ArraySet<>();
-        usedUrls = settings.getStringSet(USED_URLS_AUTOCOMPLETE_SHARED_PREF, usedUrls);
+        usedUrls = sharedPrefs.getStringSet(USED_URLS_AUTOCOMPLETE_SHARED_PREF, usedUrls);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 R.layout.single_text_view, usedUrls.toArray(new String[0]));
+//                R.layout.single_text_view_for_debug_list, usedUrls.toArray(new String[0]));
         urlAutoCompleteTv.setAdapter(adapter);
 
         //softInput handling
@@ -147,6 +148,14 @@ public class SensGraphConfigure extends AppCompatActivity {
                 resetValue();
             }
         });
+
+        final Button buttonClearUrl = (Button) findViewById(R.id.clearUrlBtn);
+        buttonClearUrl.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                urlAutoCompleteTv.setText("");
+            }
+        });
+
     }
 
     @Override
@@ -235,7 +244,7 @@ public class SensGraphConfigure extends AppCompatActivity {
             } catch (Exception e) {
                 bHasErrors = true;
                 addInfoString(infoSb, getString(R.string.config_activity_error_msg_2));
-                dt.logE(TAG, e);
+                DevTools.logE(TAG, e);
             }
         }
         setSaveBtnState(!bHasErrors);
@@ -361,6 +370,7 @@ public class SensGraphConfigure extends AppCompatActivity {
                 //position 3 is for widget pendingIntent
                 sdb.setField(4, updateInterval);
                 sdb.setField(5, new ArrayList()); //used to save values for graph
+//                sdb.setField(6, new ArrayList()); //used to save values for debugger
 //                dt.logV(TAG, "save settings updateInterval", updateInterval, "sensorName", sensorName,
 //                        "sensorValue", sensorValue, "url", url);
             }
@@ -371,6 +381,7 @@ public class SensGraphConfigure extends AppCompatActivity {
                     AppWidgetManager.getInstance(v.getContext()),
                     new int[] { mAppWidgetId }
             );
+            DevTools.log(TAG, "sensgraphWidgetProvider", sensgraphWidgetProvider);
 
             //finnish activity
             Intent resultIntent = new Intent();

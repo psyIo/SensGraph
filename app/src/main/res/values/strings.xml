@@ -31,4 +31,7 @@
     <string name="help_info_text_4">4. Enter update time interval in minutes</string>
     <string name="help_info_text_5">5. Press save to finnish creating the widget</string>
     <string name="help_info_text_6">6. Press on the widget to update it manually</string>
+
+    <string name="x">X</string>
+
 </resources>

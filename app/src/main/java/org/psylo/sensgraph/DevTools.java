@@ -9,17 +9,17 @@ import android.util.Log;
  */
 
 class DevTools {
-    final String separator = " ";
+    final static private String separator = " ";
 
-    void logV(String tag, Object... objects){
-        Log.v(tag, makeStringBuilderFromObjects(objects).toString());
+    static void log(String tag, Object... objects){
+        Log.v(tag, makeStringBuilderFromObjectsStatic(objects).toString());
     }
 
-    void logE(String tag, Object... objects){
-        Log.e(tag, makeStringBuilderFromObjects(objects).toString());
+    static void logE(String tag, Object... objects){
+        Log.e(tag, makeStringBuilderFromObjectsStatic(objects).toString());
     }
 
-    StringBuilder makeStringBuilderFromObjects(Object... objects) {
+    private static StringBuilder makeStringBuilderFromObjectsStatic(Object... objects) {
         final StringBuilder sb = new StringBuilder();
         for (Object obj : objects) {
             if (obj == null) {
@@ -31,4 +31,27 @@ class DevTools {
         }
         return sb;
     }
+
+    void logV(String tag, Object... objects){
+        Log.v(tag, makeStringBuilderFromObjects(objects).toString());
+    }
+
+//    void logE(String tag, Object... objects){
+//        Log.e(tag, makeStringBuilderFromObjects(objects).toString());
+//    }
+
+    private StringBuilder makeStringBuilderFromObjects(Object... objects) {
+        final StringBuilder sb = new StringBuilder();
+        for (Object obj : objects) {
+            if (obj == null) {
+                sb.append("null_ref");
+            } else {
+                sb.append(obj);
+            }
+            sb.append(separator);
+        }
+        return sb;
+    }
+
+
 }

@@ -9,6 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@color/black"
     tools:context="org.psylo.sensgraph.SensGraphConfigure">
 
     <AutoCompleteTextView
@@ -22,7 +23,21 @@
         android:background="@color/greyDark"
         android:padding="4dp"
         android:inputType="text"
-        tools:ignore="LabelFor" />
+        tools:ignore="LabelFor"
+        android:layout_toStartOf="@+id/clearUrlBtn" />
+
+    <Button
+        android:id="@+id/clearUrlBtn"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/nameUrlValueEdit"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/x"
+        android:alpha="0.8"
+        android:textColor="@color/greyLight"
+        android:textSize="@dimen/text_22sp"
+        android:background="@color/greyDark"/>
 
     <TextView
         android:id="@+id/sensorNameTv"
@@ -76,18 +91,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="2"
+            android:background="@color/greyDark"
             android:inputType="number"
+            android:padding="4dp"
             android:text="@string/update_time_default_interval"
             android:textAlignment="gravity"
             android:textColor="@color/blue"
-            android:background="@color/greyDark"
-            android:padding="4dp"
             android:textSize="@dimen/elements_text_size"
             tools:ignore="LabelFor" />
 
     </LinearLayout>
 
-    <!--Lygiuoti kartusu image view-->
+    <!--Lygiuoti kartu su image view-->
     <ListView
         android:id="@+id/namesList"
         android:layout_width="match_parent"
@@ -100,7 +115,7 @@
         android:layout_marginStart="@dimen/textview_alignment_to_edittext_margin"
         android:layout_marginTop="@dimen/top_margin_config"
         android:layout_below="@+id/linearLayoutUpdateTime"/>
-    <!--Lygiuoti kartusu list view-->
+    <!--Lygiuoti kartu su list view-->
     <ImageView
         android:id="@+id/infinityLoaderView"
         android:layout_width="wrap_content"
