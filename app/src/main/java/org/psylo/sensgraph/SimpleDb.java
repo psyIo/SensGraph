@@ -11,10 +11,10 @@ import java.util.List;
 
 class SimpleDb {
     final static private String TAG = "SimpleDb";
-    List<Object> ids;
-    private int numberOfFields;
+    List<Object> ids = new ArrayList<>(); //widget id;
+    private int numberOfFields = 10;
     private int currEntryIdx;
-    private List<Object> entries;
+    private List<Object> entries = new ArrayList<>(); //entries for widget;
     private Entry currEntry;
 
     SimpleDb(int size) {
@@ -24,11 +24,11 @@ class SimpleDb {
     }
 
     Boolean getCurrEntry(int id) {
-        DevTools.logE(TAG, "getCurrEntry called with par id ", id, "List ids", ids);
+//        DevTools.logE(TAG, "getCurrEntry called with par id ", id, "List ids", ids);
         int idx = ids.indexOf(id);
         if (idx > -1) {
-            currEntryIdx = idx;
-            currEntry = (Entry) entries.get(idx);
+            this.currEntryIdx = idx;
+            this.currEntry = (Entry) this.entries.get(idx);
             return true;
         } else {
             return false;

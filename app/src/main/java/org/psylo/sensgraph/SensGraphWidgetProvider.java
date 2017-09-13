@@ -69,8 +69,13 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
                     0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             remoteViews.setOnClickPendingIntent(R.id.widget_relative_layout, updateWidgetPendingIntent);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
-            DevTools.log("settings.getCurrEntry(widgetId)", settings.getCurrEntry(widgetId), "widgetId", widgetId, "settings", settings);
+//            DevTools.log("settings.getCurrEntry(widgetId)", settings.getCurrEntry(widgetId), "widgetId", widgetId, "settings", settings);
             updateWidgetDebugList(context, "settings.ids.toString() " + settings.ids.toString());
+            DevTools.logE(TAG, "StaticDb.getCurrEntry(widgetId)", StaticDb.getCurrEntry(widgetId),
+                    StaticDb.currEntry);
+            DbEntry dbe = StaticDb.currEntry;
+            DevTools.log(TAG, "dbe" , dbe);
+//            DevTools.log(TAG, "StaticDb.getField(0)", StaticDb.getField(0));
             if (settings.getCurrEntry(widgetId)) {
                 UpdateViewFromJSON jsonTask = new UpdateViewFromJSON(context, remoteViews, widgetId,
                         appWidgetManager, settings.getField(0).toString(), settings.getField(1).toString());

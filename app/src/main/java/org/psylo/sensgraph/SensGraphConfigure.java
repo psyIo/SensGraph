@@ -375,6 +375,21 @@ public class SensGraphConfigure extends AppCompatActivity {
 //                        "sensorValue", sensorValue, "url", url);
             }
 
+            //dev++++++
+            StaticDb.createEntry(mAppWidgetId, new DbEntry());
+//            DevTools.log(TAG, "StaticDb.createEntry(mAppWidgetId);",
+//                    "StaticDb.getCurrEntry(mAppWidgetId)", StaticDb.getCurrEntry(mAppWidgetId));
+            StaticDb.setField(0, sensorName);
+//            DevTools.logE(TAG, "StaticDb.getField(0)", StaticDb.getField(0));
+            StaticDb.setField(1, sensorValue);
+            StaticDb.setField(2, url);
+//            position 3 is for widget pendingIntent
+            StaticDb.setField(4, updateInterval);
+            StaticDb.setField(5, new ArrayList()); //used to save values for graph
+            //dev------
+
+
+
             //manual first widget update using SensGraphWidgetProvider class
             SensGraphWidgetProvider sensgraphWidgetProvider = new SensGraphWidgetProvider();
             sensgraphWidgetProvider.onUpdate(v.getContext(),
@@ -462,7 +477,7 @@ public class SensGraphConfigure extends AppCompatActivity {
         }
     }
 
-    private Boolean equalsNullSafe(Object obj1, Object obj2) {
+    static Boolean equalsNullSafe(Object obj1, Object obj2) {
         Boolean result;
         result = obj1 == null && obj2 == null;
         if (!result) {
