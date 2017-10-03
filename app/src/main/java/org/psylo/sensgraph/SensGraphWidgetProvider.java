@@ -6,7 +6,6 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -16,11 +15,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -32,17 +31,24 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
 
     static final String TAG = "SensGraphWidgetProvider";
     static final String APP_NAME = "SensGraph";
-    static final DevTools dt = new DevTools(); //dev
+//    static final DevTools dt = new DevTools(); //dev
     protected static AlarmManager alarmManager;
-    protected static SimpleDb settings = new SimpleDb(10);
+//    protected static SimpleDb settings;// = new SimpleDb(10);
     ArrayList<String> debuggingArrayList = new ArrayList<>();
-//    settings.entries.fields structure:
+
+//    public SensGraphWidgetProvider() {
+//        DevTools.log(TAG, "SensGraphWidgetProvider constructor called settings", settings);
+//        if (settings == null) {
+//            settings = new SimpleDb(10);
+//        }
+//    }
+
+//    widgetConfig structure:
 //    0: (String) sensorNamePath
 //    1: (String) sensorValuePath
 //    2: (String) url
-//    3: (PendingIntent) pendingIntent to update widget
-//    4: (Long) Update interval in minutes
-//    5: (ArrayList) Sensor values List, to draw graph from
+//    3: (Long) Update interval in minutes
+//    4: (String[]) Sensor values List, to draw graph from
 //    6: ---
 //    7: ---
 //    8: ---
@@ -50,7 +56,9 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+        //manually updating widget appWidgetIds consists only of single widget id
 //        SharedPreferences sharedPreferences = context.getSharedPreferences(APP_NAME, 0);
+        DevTools.log(TAG, "SensGraphWidgetProvider onUpdate appWidgetIds", appWidgetIds);
         for (int widgetId : appWidgetIds) {
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(),
                     R.layout.simple_widget);
@@ -69,40 +77,35 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
                     0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             remoteViews.setOnClickPendingIntent(R.id.widget_relative_layout, updateWidgetPendingIntent);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
-//            DevTools.log("settings.getCurrEntry(widgetId)", settings.getCurrEntry(widgetId), "widgetId", widgetId, "settings", settings);
-            updateWidgetDebugList(context, "settings.ids.toString() " + settings.ids.toString());
-            DevTools.logE(TAG, "StaticDb.getCurrEntry(widgetId)", StaticDb.getCurrEntry(widgetId),
-                    StaticDb.currEntry);
-            DbEntry dbe = StaticDb.currEntry;
-            DevTools.log(TAG, "dbe" , dbe);
-//            DevTools.log(TAG, "StaticDb.getField(0)", StaticDb.getField(0));
-            if (settings.getCurrEntry(widgetId)) {
+
+            String[] widgetConfig = FileDb.getEntry(context, widgetId);
+            if (widgetConfig != null) {
+                DevTools.log(TAG, "widgetConfig", widgetConfig);
                 UpdateViewFromJSON jsonTask = new UpdateViewFromJSON(context, remoteViews, widgetId,
-                        appWidgetManager, settings.getField(0).toString(), settings.getField(1).toString());
-                jsonTask.execute(settings.getField(2).toString());
+                        appWidgetManager, widgetConfig[1], widgetConfig[2]);
+                jsonTask.execute(widgetConfig[3]);
 
 
                 //sets pending intent in position 3 (4) to reuse it in onDeleted() method to
                 //cancel alarmManager job
                 long interval;
-                if (settings.getField(3) == null) {
+                if (!widgetConfig[4].equals("")) {
                     //updates when device is awake only
                     if (alarmManager == null) {
                         alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                     }
-                    settings.setField(3, updateWidgetPendingIntent);
-                    if (settings.getField(4) != null) {
-                        interval = 1000 * 60 * (Long) settings.getField(4); //minutes
+//                    settings.setField(3, updateWidgetPendingIntent);
+                    if (!widgetConfig[4].equals("")) {
+                        interval = 1000 * 60 * Long.parseLong(widgetConfig[4]) ; //minutes
                     } else {
                         interval = 1000 * 60 * 30; //default 30 minutes
                     }
                     alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(),
                             interval, updateWidgetPendingIntent);
-                    updateWidgetDebugList(context, "alarmManager.setRepeating updateWidgetPendingIntent widgetId " + String.valueOf(widgetId));
-                    dt.logV("alarmManager.setRepeating updateWidgetPendingIntent", updateWidgetPendingIntent);
+
+//                    updateWidgetDebugList(context, "alarmManager.setRepeating updateWidgetPendingIntent widgetId " + String.valueOf(widgetId));
                 }
             }
-            updateWidgetDebugList(context, "SensGraphWidgetProvider onUpdate widgetId " + String.valueOf(widgetId));
         }
     }
 
@@ -120,13 +123,14 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
             alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         }
         for (int i : appWidgetIds) {
-            if (settings.getCurrEntry(i)) {
-                if (settings.getField(3) != null) {
-                    PendingIntent pi = (PendingIntent) settings.getField(3);
-                    alarmManager.cancel(pi);
-                }
-                settings.deleteCurrEntry();
-            }
+//            if (settings.getCurrEntry(i)) {
+//                if (settings.getField(3) != null) {
+//                    PendingIntent pi = (PendingIntent) settings.getField(3);
+//                    alarmManager.cancel(pi);
+//                }
+//                settings.deleteCurrEntry();
+//            }
+            FileDb.deleteEntry(context, i);
         }
     }
 
@@ -149,7 +153,6 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
         currSysDate.setTime(System.currentTimeMillis());
         debuggingArrayList.add(String.format(
                 getDefaultLocale(context), "%1$tY.%1$tm.%1$td %1$tT", currSysDate) + " " + strToUpdate);
-        DevTools.log(TAG, "debuggingArrayList", debuggingArrayList, "strToUpdate", strToUpdate);
     }
 
     private class UpdateViewFromJSON extends AsyncTask<String, Integer, String> {
@@ -160,7 +163,6 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
         private JSONWorker jWorker;
         private String sensorNamePath;
         private String sensorValuePath;
-
 
         UpdateViewFromJSON(Context context, RemoteViews views, int appWidgetID, AppWidgetManager appWidgetManager,
                                   String nameName, String valueName){
@@ -176,17 +178,16 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
         /**
          * returns http response from String URL supplied
          */
-        protected String doInBackground(String... strings) {
+        protected String doInBackground(String... urls) {
             String response = "";
-            if (strings.length > 0) {
-                response = jWorker.GetHttpResponse(strings[0]);
+            if (urls.length > 0) {
+                response = jWorker.GetHttpResponse(urls[0]);
             }
             return response;
         }
 
         protected void onProgressUpdate(Integer... progress) {
 //            setProgressPercent(progress[0]);
-            
         }
 
         protected void onPostExecute(String result) {
@@ -199,87 +200,172 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
                 sSensorValue = jWorker.getValueFromPath(sensorValuePath);
                 remoteViews.setTextViewText(R.id.sensorValueTextView,
                         sSensorValue);
-                //graph painting
                 try {
+
                     float fSensorValue = Float.parseFloat(sSensorValue);
-                    int iBitmapWidth = 500;
-                    int iBitmapHeight = 300;
                     int iMaxValuesAmount = 50;
-                    float fValueRange;
-                    float fVerticalStepSizePixelMultiplyier;
-                    float fMaxValue = Float.MIN_VALUE;
-                    float fMinValue = Float.MAX_VALUE;
-                    List sensorValuesList = (ArrayList) settings.getField(5);
-                    if (sensorValuesList.size() == iMaxValuesAmount) {
-                        sensorValuesList.remove(0);
+
+                    String[] widgetConfig = FileDb.getEntry(context, widgetID);
+                    ArrayList sensorValuesList;
+                    if (widgetConfig != null) {
+                        sensorValuesList = parseStringToFloatArray(widgetConfig[5]);
+                        if (sensorValuesList.size() == iMaxValuesAmount) {
+                            sensorValuesList.remove(0);
+                        }
+                        sensorValuesList.add(fSensorValue);
+                        Bitmap bitmap = drawGraphBitmap(sensorValuesList);
+                        if (bitmap != null) {
+                            remoteViews.setImageViewBitmap(R.id.graphImageView, bitmap);
+                        }
+
+
+                        //update widgetConfig
+                        Object[] newValues = sensorValuesList.toArray();
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("[");
+                        for (Object obj : newValues) {
+                            sb.append(String.valueOf(obj));
+                            sb.append(",");
+                        }
+                        sb.delete(sb.length()-1, sb.length());
+                        sb.append("]");
+                        widgetConfig[5] = sb.toString();
+                        FileDb.saveEntry(context, widgetConfig);
+//                        if (sensorValuesList.size() > 1) {
+//                            //finding min max values
+//                            for (Object value : sensorValuesList) {
+//                                fSensorValue = (float) value;
+//                                if (fSensorValue > fMaxValue) {
+//                                    fMaxValue = fSensorValue;
+//                                }
+//                                if (fSensorValue < fMinValue) {
+//                                    fMinValue = fSensorValue;
+//                                }
+//                            }
+//                            fValueRange = fMaxValue - fMinValue;
+//                            fVerticalStepSizePixelMultiplyier = fValueRange / iBitmapHeight;
+//                            if (fVerticalStepSizePixelMultiplyier == 0) {
+//                                fVerticalStepSizePixelMultiplyier = 1;
+//                            }
+//                            int iStepSize = Math.round(iBitmapWidth / sensorValuesList.size());
+//                            Bitmap bitmap = Bitmap.createBitmap(iBitmapWidth, iBitmapHeight, Bitmap.Config.ARGB_8888);
+//                            Canvas canvas = new Canvas(bitmap);
+//
+//                            Paint boundsPaint = new Paint();
+//                            boundsPaint.setColor(Color.WHITE);
+//                            boundsPaint.setStrokeWidth(5);
+//                            boundsPaint.setStyle(Paint.Style.STROKE);
+//                            boundsPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+//                            boundsPaint.setAlpha(90);
+//
+//                            Path boundsPath = new Path();
+//                            boundsPath.moveTo(0, 3);
+//                            boundsPath.lineTo(iBitmapWidth, 0);
+//                            boundsPath.moveTo(0, iBitmapHeight);
+//                            boundsPath.lineTo(iBitmapWidth, iBitmapHeight - 3);
+//                            boundsPath.moveTo(0, iBitmapHeight / 2);
+//                            boundsPath.lineTo(iBitmapWidth, iBitmapHeight / 2);
+//                            canvas.drawPath(boundsPath, boundsPaint);
+//
+//                            Paint paintGraph = new Paint();
+//                            paintGraph.setColor(Color.argb(150,255,0,0)); //red
+//                            paintGraph.setStrokeWidth(10);
+//                            paintGraph.setStyle(Paint.Style.STROKE);
+//                            paintGraph.setFlags(Paint.ANTI_ALIAS_FLAG);
+//
+//                            Paint textPaint = new Paint();
+//                            textPaint.setColor(Color.WHITE);
+//                            textPaint.setTextSize(20);
+//                            canvas.drawText(String.valueOf(fMinValue), iBitmapWidth - 100, iBitmapHeight - 1, textPaint);
+//                            if (fMaxValue != fMinValue) {
+//                                canvas.drawText(String.valueOf(fMaxValue), iBitmapWidth - 100, 15, textPaint);
+//                                canvas.drawText(String.valueOf((fMaxValue + fMinValue) / 2), iBitmapWidth - 100, iBitmapHeight / 2, textPaint);
+//                            }
+//                            float fSensValue;
+//                            int iX = 0;
+//                            Path graphPath = new Path();
+//                            graphPath.moveTo(0, iBitmapHeight - ((float) sensorValuesList.get(0) - fMinValue) / fVerticalStepSizePixelMultiplyier);
+//                            for (Object value : sensorValuesList) {
+//                                fSensValue = (float) value;
+//                                graphPath.lineTo(iX, iBitmapHeight - (fSensValue - fMinValue) / fVerticalStepSizePixelMultiplyier);
+//                                iX += iStepSize;
+//                            }
+//                            canvas.drawPath(graphPath, paintGraph);
+//                            remoteViews.setImageViewBitmap(R.id.graphImageView, bitmap);
+//                        }
                     }
-                    sensorValuesList.add(fSensorValue);
-                    if (sensorValuesList.size() > 1) {
-                        //finding min max values
-                        for (Object value : sensorValuesList) {
-                            fSensorValue = (float) value;
-                            if (fSensorValue > fMaxValue) {
-                                fMaxValue = fSensorValue;
-                            }
-                            if (fSensorValue < fMinValue) {
-                                fMinValue = fSensorValue;
-                            }
-                        }
-                        fValueRange = fMaxValue - fMinValue;
-                        fVerticalStepSizePixelMultiplyier = fValueRange / iBitmapHeight;
-                        if (fVerticalStepSizePixelMultiplyier == 0) {
-                            fVerticalStepSizePixelMultiplyier = 1;
-                        }
-                        int iStepSize = Math.round(iBitmapWidth / sensorValuesList.size());
-//                    dt.logV("iStepSize", iStepSize, "fMinValue", fMinValue, "fMaxValue", fMaxValue,
-//                            "fValueRange", fValueRange, "fVerticalStepSizePixelMultiplyier", fVerticalStepSizePixelMultiplyier);
-                        Bitmap bitmap = Bitmap.createBitmap(iBitmapWidth, iBitmapHeight, Bitmap.Config.ARGB_8888);
-                        Canvas canvas = new Canvas(bitmap);
-
-                        Paint boundsPaint = new Paint();
-                        boundsPaint.setColor(Color.WHITE);
-                        boundsPaint.setStrokeWidth(5);
-                        boundsPaint.setStyle(Paint.Style.STROKE);
-                        boundsPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-                        boundsPaint.setAlpha(90);
-
-                        Path boundsPath = new Path();
-                        boundsPath.moveTo(0, 3);
-                        boundsPath.lineTo(iBitmapWidth, 0);
-                        boundsPath.moveTo(0, iBitmapHeight);
-                        boundsPath.lineTo(iBitmapWidth, iBitmapHeight - 3);
-                        boundsPath.moveTo(0, iBitmapHeight / 2);
-                        boundsPath.lineTo(iBitmapWidth, iBitmapHeight / 2);
-                        canvas.drawPath(boundsPath, boundsPaint);
-//                    dt.logV("canvas.drawPath(boundsPath, boundsPaint);", boundsPath);
-
-
-                        Paint paintGraph = new Paint();
-                        paintGraph.setColor(Color.argb(150,255,0,0)); //red
-                        paintGraph.setStrokeWidth(10);
-                        paintGraph.setStyle(Paint.Style.STROKE);
-                        paintGraph.setFlags(Paint.ANTI_ALIAS_FLAG);
-
-                        Paint textPaint = new Paint();
-                        textPaint.setColor(Color.WHITE);
-                        textPaint.setTextSize(20);
-                        canvas.drawText(String.valueOf(fMaxValue), iBitmapWidth - 100, 15, textPaint);
-                        canvas.drawText(String.valueOf(fMinValue), iBitmapWidth - 100, iBitmapHeight - 1, textPaint);
-                        canvas.drawText(String.valueOf((fMaxValue + fMinValue) / 2), iBitmapWidth - 100, iBitmapHeight / 2, textPaint);
-
-                        float fSensValue;
-                        int iX = 0;
-                        Path graphPath = new Path();
-                        graphPath.moveTo(0, iBitmapHeight - ((float) sensorValuesList.get(0) - fMinValue) / fVerticalStepSizePixelMultiplyier);
-                        for (Object value : sensorValuesList) {
-                            fSensValue = (float) value;
-                            graphPath.lineTo(iX, iBitmapHeight - (fSensValue - fMinValue) / fVerticalStepSizePixelMultiplyier);
-//                        dt.logV(TAG, "x, y", iX, iBitmapHeight - (fSensValue - fMinValue) / fVerticalStepSizePixelMultiplyier, "fSensValue", fSensValue);
-                            iX += iStepSize;
-                        }
-                        canvas.drawPath(graphPath, paintGraph);
-                        remoteViews.setImageViewBitmap(R.id.graphImageView, bitmap);
-                    }
+//                    }
+//                    List sensorValuesList = (ArrayList) settings.getField(5);
+//                    if (sensorValuesList.size() == iMaxValuesAmount) {
+//                        sensorValuesList.remove(0);
+//                    }
+//                    sensorValuesList.add(fSensorValue);
+//                    if (sensorValuesList.size() > 1) {
+//                        //finding min max values
+//                        for (Object value : sensorValuesList) {
+//                            fSensorValue = (float) value;
+//                            if (fSensorValue > fMaxValue) {
+//                                fMaxValue = fSensorValue;
+//                            }
+//                            if (fSensorValue < fMinValue) {
+//                                fMinValue = fSensorValue;
+//                            }
+//                        }
+//                        fValueRange = fMaxValue - fMinValue;
+//                        fVerticalStepSizePixelMultiplyier = fValueRange / iBitmapHeight;
+//                        if (fVerticalStepSizePixelMultiplyier == 0) {
+//                            fVerticalStepSizePixelMultiplyier = 1;
+//                        }
+//                        int iStepSize = Math.round(iBitmapWidth / sensorValuesList.size());
+////                    dt.logV("iStepSize", iStepSize, "fMinValue", fMinValue, "fMaxValue", fMaxValue,
+////                            "fValueRange", fValueRange, "fVerticalStepSizePixelMultiplyier", fVerticalStepSizePixelMultiplyier);
+//                        Bitmap bitmap = Bitmap.createBitmap(iBitmapWidth, iBitmapHeight, Bitmap.Config.ARGB_8888);
+//                        Canvas canvas = new Canvas(bitmap);
+//
+//                        Paint boundsPaint = new Paint();
+//                        boundsPaint.setColor(Color.WHITE);
+//                        boundsPaint.setStrokeWidth(5);
+//                        boundsPaint.setStyle(Paint.Style.STROKE);
+//                        boundsPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+//                        boundsPaint.setAlpha(90);
+//
+//                        Path boundsPath = new Path();
+//                        boundsPath.moveTo(0, 3);
+//                        boundsPath.lineTo(iBitmapWidth, 0);
+//                        boundsPath.moveTo(0, iBitmapHeight);
+//                        boundsPath.lineTo(iBitmapWidth, iBitmapHeight - 3);
+//                        boundsPath.moveTo(0, iBitmapHeight / 2);
+//                        boundsPath.lineTo(iBitmapWidth, iBitmapHeight / 2);
+//                        canvas.drawPath(boundsPath, boundsPaint);
+////                    dt.logV("canvas.drawPath(boundsPath, boundsPaint);", boundsPath);
+//
+//                        Paint paintGraph = new Paint();
+//                        paintGraph.setColor(Color.argb(150,255,0,0)); //red
+//                        paintGraph.setStrokeWidth(10);
+//                        paintGraph.setStyle(Paint.Style.STROKE);
+//                        paintGraph.setFlags(Paint.ANTI_ALIAS_FLAG);
+//
+//                        Paint textPaint = new Paint();
+//                        textPaint.setColor(Color.WHITE);
+//                        textPaint.setTextSize(20);
+//                        canvas.drawText(String.valueOf(fMinValue), iBitmapWidth - 100, iBitmapHeight - 1, textPaint);
+//                        if (fMaxValue != fMinValue) {
+//                            canvas.drawText(String.valueOf(fMaxValue), iBitmapWidth - 100, 15, textPaint);
+//                            canvas.drawText(String.valueOf((fMaxValue + fMinValue) / 2), iBitmapWidth - 100, iBitmapHeight / 2, textPaint);
+//                        }
+//                        float fSensValue;
+//                        int iX = 0;
+//                        Path graphPath = new Path();
+//                        graphPath.moveTo(0, iBitmapHeight - ((float) sensorValuesList.get(0) - fMinValue) / fVerticalStepSizePixelMultiplyier);
+//                        for (Object value : sensorValuesList) {
+//                            fSensValue = (float) value;
+//                            graphPath.lineTo(iX, iBitmapHeight - (fSensValue - fMinValue) / fVerticalStepSizePixelMultiplyier);
+////                        dt.logV(TAG, "x, y", iX, iBitmapHeight - (fSensValue - fMinValue) / fVerticalStepSizePixelMultiplyier, "fSensValue", fSensValue);
+//                            iX += iStepSize;
+//                        }
+//                        canvas.drawPath(graphPath, paintGraph);
+//                        remoteViews.setImageViewBitmap(R.id.graphImageView, bitmap);
+//                    }
                 } catch (Exception e) {
                     DevTools.logE(TAG, e);
                 }
@@ -301,14 +387,105 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
             serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
             updateWidgetDebugList(context, "UpdateViewFromJSON widgetId " + String.valueOf(widgetID) +
                     " sSensorValue " + sSensorValue);
-            DevTools.log(TAG, "UpdateViewFromJSON widgetId " + String.valueOf(widgetID) +
-                    " sSensorValue " + sSensorValue, "debuggingArrayList.size()", debuggingArrayList.size(),
-                    "debuggingArrayList", debuggingArrayList);
             serviceIntent.putStringArrayListExtra("LIST_VALUES", debuggingArrayList);
-            remoteViews.setRemoteAdapter(R.id.widgetDebugList, serviceIntent);
-            widgetManager.notifyAppWidgetViewDataChanged(widgetID,R.id.widgetDebugList);
+            //debugging list
+//            remoteViews.setRemoteAdapter(R.id.widgetDebugList, serviceIntent);
+//            widgetManager.notifyAppWidgetViewDataChanged(widgetID,R.id.widgetDebugList);
 
             widgetManager.updateAppWidget(widgetID, remoteViews);
+        }
+
+        @NonNull
+        private ArrayList parseStringToFloatArray(String values) {
+            if (values.equals("[]")) {
+                return new ArrayList();
+            }
+
+            values = values.substring(1,values.length()-1); //removes [] symbols
+            String[] valuesSplited = values.split(",");
+            ArrayList resultList = new ArrayList();
+            for (String str : valuesSplited) {
+                resultList.add(Float.parseFloat(str));
+            }
+
+            DevTools.log(TAG, "parseStringToFloatArray resultList", resultList);
+            return resultList;
+        }
+
+        private Bitmap drawGraphBitmap(ArrayList sensorValuesList) {
+
+            if (sensorValuesList.size() < 1) {
+                return null;
+            }
+
+            float fSensorValue;
+            int iBitmapWidth = 500;
+            int iBitmapHeight = 300;
+            float fValueRange;
+            float fVerticalStepSizePixelMultiplyier;
+            float fMaxValue = Float.MIN_VALUE;
+            float fMinValue = Float.MAX_VALUE;
+
+            //finding min max values
+            for (Object value : sensorValuesList) {
+                fSensorValue = (float) value;
+                if (fSensorValue > fMaxValue) {
+                    fMaxValue = fSensorValue;
+                }
+                if (fSensorValue < fMinValue) {
+                    fMinValue = fSensorValue;
+                }
+            }
+            fValueRange = fMaxValue - fMinValue;
+            fVerticalStepSizePixelMultiplyier = fValueRange / iBitmapHeight;
+            if (fVerticalStepSizePixelMultiplyier == 0) {
+                fVerticalStepSizePixelMultiplyier = 1;
+            }
+            int iStepSize = Math.round(iBitmapWidth / sensorValuesList.size());
+            Bitmap bitmap = Bitmap.createBitmap(iBitmapWidth, iBitmapHeight, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+
+            Paint boundsPaint = new Paint();
+            boundsPaint.setColor(Color.WHITE);
+            boundsPaint.setStrokeWidth(5);
+            boundsPaint.setStyle(Paint.Style.STROKE);
+            boundsPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+            boundsPaint.setAlpha(90);
+
+            Path boundsPath = new Path();
+            boundsPath.moveTo(0, 3);
+            boundsPath.lineTo(iBitmapWidth, 0);
+            boundsPath.moveTo(0, iBitmapHeight);
+            boundsPath.lineTo(iBitmapWidth, iBitmapHeight - 3);
+            boundsPath.moveTo(0, iBitmapHeight / 2);
+            boundsPath.lineTo(iBitmapWidth, iBitmapHeight / 2);
+            canvas.drawPath(boundsPath, boundsPaint);
+
+            Paint paintGraph = new Paint();
+            paintGraph.setColor(Color.argb(150,255,0,0)); //red
+            paintGraph.setStrokeWidth(10);
+            paintGraph.setStyle(Paint.Style.STROKE);
+            paintGraph.setFlags(Paint.ANTI_ALIAS_FLAG);
+
+            Paint textPaint = new Paint();
+            textPaint.setColor(Color.WHITE);
+            textPaint.setTextSize(20);
+            canvas.drawText(String.valueOf(fMinValue), iBitmapWidth - 100, iBitmapHeight - 1, textPaint);
+            if (fMaxValue != fMinValue) {
+                canvas.drawText(String.valueOf(fMaxValue), iBitmapWidth - 100, 15, textPaint);
+                canvas.drawText(String.valueOf((fMaxValue + fMinValue) / 2), iBitmapWidth - 100, iBitmapHeight / 2, textPaint);
+            }
+            float fSensValue;
+            int iX = 0;
+            Path graphPath = new Path();
+            graphPath.moveTo(0, iBitmapHeight - ((float) sensorValuesList.get(0) - fMinValue) / fVerticalStepSizePixelMultiplyier);
+            for (Object value : sensorValuesList) {
+                fSensValue = (float) value;
+                graphPath.lineTo(iX, iBitmapHeight - (fSensValue - fMinValue) / fVerticalStepSizePixelMultiplyier);
+                iX += iStepSize;
+            }
+            canvas.drawPath(graphPath, paintGraph);
+            return bitmap;
         }
     }
 }

@@ -50,18 +50,18 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true" />
 
-    <ListView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/widgetDebugList"
-        android:layout_alignParentStart="true"
-        android:divider="@color/blue"
-        android:dividerHeight="1px"
-        android:scrollbarSize="10dp"
-        android:scrollbarThumbVertical="@drawable/custom_scrollbar"
-        android:layout_below="@+id/sensorValueTextView"
-        android:layout_above="@+id/sensorUpdatedDtTextView">
-    </ListView>
+    <!--<ListView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/widgetDebugList"-->
+        <!--android:layout_alignParentStart="true"-->
+        <!--android:divider="@color/blue"-->
+        <!--android:dividerHeight="1px"-->
+        <!--android:scrollbarSize="10dp"-->
+        <!--android:scrollbarThumbVertical="@drawable/custom_scrollbar"-->
+        <!--android:layout_below="@+id/sensorValueTextView"-->
+        <!--android:layout_above="@+id/sensorUpdatedDtTextView">-->
+    <!--</ListView>-->
 
     </RelativeLayout>
 

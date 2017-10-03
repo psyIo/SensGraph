@@ -57,7 +57,8 @@ public class SensGraphConfigure extends AppCompatActivity {
         bConfigOkToSaveState = false;
 
         //sets saved used URLs saved list for autocompletion
-        final AutoCompleteTextView urlAutoCompleteTv = (AutoCompleteTextView) findViewById(R.id.nameUrlValueEdit);
+        final AutoCompleteTextView urlAutoCompleteTv = findViewById(R.id.nameUrlValueEdit);
+//        final AutoCompleteTextView urlAutoCompleteTv = (AutoCompleteTextView) findViewById(R.id.nameUrlValueEdit);
         SharedPreferences sharedPrefs = getSharedPreferences(APP_NAME, 0);
         Set<String> usedUrls = new ArraySet<>();
         usedUrls = sharedPrefs.getStringSet(USED_URLS_AUTOCOMPLETE_SHARED_PREF, usedUrls);
@@ -91,7 +92,8 @@ public class SensGraphConfigure extends AppCompatActivity {
         urlAutoCompleteTv.selectAll();
 
         //update interval EditText
-        EditText updateIntervalEt = (EditText) findViewById(R.id.updateIntervalEditText);
+        EditText updateIntervalEt = findViewById(R.id.updateIntervalEditText);
+//        EditText updateIntervalEt = (EditText) findViewById(R.id.updateIntervalEditText);
         updateIntervalEt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -129,27 +131,27 @@ public class SensGraphConfigure extends AppCompatActivity {
         });
 
         //dev+
-//        TextView urlField = (TextView) findViewById(R.id.nameUrlValueEdit);
+//        TextView urlField = findViewById(R.id.nameUrlValueEdit);
 //        urlField.setText("http://api.thingspeak.com/channels/99791/feeds.json?results=1");
 //        urlField.setText("http://46.251.48.58:6969/get_json/");
 //        urlField.setText("http://46.251.48.58:6969/get_json_saved/");
         //dev-
 
-        final TextView sensorNameTv = (TextView) findViewById(R.id.sensorNameTv);
+        final TextView sensorNameTv = findViewById(R.id.sensorNameTv);
         sensorNameTv.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 resetName();
             }
         });
 
-        final TextView sensorValueTv = (TextView) findViewById(R.id.sensorValueTv);
+        final TextView sensorValueTv = findViewById(R.id.sensorValueTv);
         sensorValueTv.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 resetValue();
             }
         });
 
-        final Button buttonClearUrl = (Button) findViewById(R.id.clearUrlBtn);
+        final Button buttonClearUrl = findViewById(R.id.clearUrlBtn);
         buttonClearUrl.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 urlAutoCompleteTv.setText("");
@@ -184,7 +186,7 @@ public class SensGraphConfigure extends AppCompatActivity {
     }
 
     private void resetName() {
-        final TextView sensorNameTv = (TextView) findViewById(R.id.sensorNameTv);
+        final TextView sensorNameTv = findViewById(R.id.sensorNameTv);
         sensorNameTv.setText(res.getString(R.string.sensor_name_text_place_holder));
         sensorNameTv.setTextColor(getColorVersionSafe(R.color.redLight));
         sensorName = null;
@@ -192,7 +194,7 @@ public class SensGraphConfigure extends AppCompatActivity {
     }
 
     private void resetValue() {
-        final TextView sensorValueTv = (TextView) findViewById(R.id.sensorValueTv);
+        final TextView sensorValueTv = findViewById(R.id.sensorValueTv);
         sensorValueTv.setText(res.getString(R.string.sensor_value_text_place_holder));
         sensorValueTv.setTextColor(getColorVersionSafe(R.color.redLight));
         sensorValue = null;
@@ -201,7 +203,7 @@ public class SensGraphConfigure extends AppCompatActivity {
 
     private void setSaveBtnState(Boolean stateOkToSave) {
         if (bConfigOkToSaveState != stateOkToSave) {
-            ActionMenuItemView mi = (ActionMenuItemView) findViewById(R.id.action_save);
+            ActionMenuItemView mi = findViewById(R.id.action_save);
             if (stateOkToSave) {
                 //here ok, gradle has lintOptions {disable 'RestrictedApi'} option added
                 mi.setIcon(getDrawableVersionSafe(R.drawable.save_btn_ok_60));
@@ -217,7 +219,7 @@ public class SensGraphConfigure extends AppCompatActivity {
         Boolean bHasErrors = false;
         StringBuilder infoSb = new StringBuilder();
 
-        final TextView tvName = (TextView) findViewById(R.id.sensorNameTv);
+        final TextView tvName = findViewById(R.id.sensorNameTv);
         if (tvName.getText() == res.getString(R.string.sensor_name_text_place_holder)) {
             addInfoString(infoSb, getString(R.string.sensor_name_text_place_holder));
             bHasErrors = true;
@@ -225,7 +227,7 @@ public class SensGraphConfigure extends AppCompatActivity {
             sensorName = tvName.getText().toString();
             sensorName = sensorName.substring(res.getString(R.string.sensor_name_text).length() + 1);
         }
-        final TextView tvValue = (TextView) findViewById(R.id.sensorValueTv);
+        final TextView tvValue = findViewById(R.id.sensorValueTv);
         if (tvValue.getText() == res.getString(R.string.sensor_value_text_place_holder)) {
             addInfoString(infoSb, getString(R.string.sensor_value_text_place_holder));
             bHasErrors = true;
@@ -234,7 +236,7 @@ public class SensGraphConfigure extends AppCompatActivity {
             sensorValue = sensorValue.substring(res.getString(R.string.sensor_value_text).length() + 1);
         }
 
-        final EditText etUpdateInterval = (EditText) findViewById(R.id.updateIntervalEditText);
+        final EditText etUpdateInterval = findViewById(R.id.updateIntervalEditText);
         if (etUpdateInterval.getText().toString().equals("0") || etUpdateInterval.getText().toString().equals("")) {
             addInfoString(infoSb, getString(R.string.config_activity_error_msg_1));
             bHasErrors = true;
@@ -255,9 +257,9 @@ public class SensGraphConfigure extends AppCompatActivity {
     }
 
     protected void getResponseAndUpdateNameList() {
-        final ListView namesListView = (ListView) findViewById(R.id.namesList);
+        final ListView namesListView = findViewById(R.id.namesList);
         final DisplayJSONNames jsonTask = new DisplayJSONNames(namesListView, this);
-        final TextView urlField = (TextView) findViewById(R.id.nameUrlValueEdit);
+        final TextView urlField = findViewById(R.id.nameUrlValueEdit);
 
         //clears JSON names list (sets an empty list)
         resetName();
@@ -268,7 +270,7 @@ public class SensGraphConfigure extends AppCompatActivity {
 
         //shows infinity loader animation drawable
         AnimationDrawable infinityLoaderAnimation;
-        ImageView infinityLoaderView = (ImageView) findViewById(R.id.infinityLoaderView);
+        ImageView infinityLoaderView = findViewById(R.id.infinityLoaderView);
         infinityLoaderView.setImageDrawable(getDrawableVersionSafe(R.drawable.infinity_loader));
         infinityLoaderAnimation = (AnimationDrawable) infinityLoaderView.getDrawable();
         infinityLoaderAnimation.start();
@@ -294,53 +296,16 @@ public class SensGraphConfigure extends AppCompatActivity {
      * */
     protected void saveAndFinnish(View v) {
         int mAppWidgetId = 0;
-//        Boolean hasErrors = false;
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-//        StringBuilder infoSb = new StringBuilder();
         if (extras != null) {
             mAppWidgetId = extras.getInt(
                     AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID);
         }
 
-//        final TextView tvName = (TextView) findViewById(R.id.sensorNameTv);
-//        if (tvName.getText() == res.getString(R.string.sensor_name_text_place_holder)) {
-//            addInfoString(infoSb, getString(R.string.sensor_name_text_place_holder));
-//            hasErrors = true;
-//        } else {
-//            sensorName = tvName.getText().toString();
-//            sensorName = sensorName.substring(res.getString(R.string.sensor_name_text).length() + 1);
-//        }
-//        final TextView tvValue = (TextView) findViewById(R.id.sensorValueTv);
-//        if (tvValue.getText() == res.getString(R.string.sensor_value_text_place_holder)) {
-//            addInfoString(infoSb, getString(R.string.sensor_value_text_place_holder));
-//            hasErrors = true;
-//        } else {
-//            sensorValue = tvValue.getText().toString();
-//            sensorValue = sensorValue.substring(res.getString(R.string.sensor_value_text).length() + 1);
-//        }
-//
-//        final EditText etUpdateInterval = (EditText) findViewById(R.id.updateIntervalEditText);
-//        if (etUpdateInterval.getText().toString().equals("0") || etUpdateInterval.getText().toString().equals("")) {
-//            addInfoString(infoSb, getString(R.string.config_activity_error_msg_1));
-//            hasErrors = true;
-//        } else {
-//            try {
-//                updateInterval = Long.parseLong(etUpdateInterval.getText().toString());
-//            } catch (Exception e) {
-//                hasErrors = true;
-//                addInfoString(infoSb, getString(R.string.config_activity_error_msg_2));
-//                dt.logE(TAG, e);
-//            }
-//        }
-
         //if there are no errors finishes activity as system expects and updates widget view
         if (!configHasErrors(v, true)) {
-//        if (hasErrors) {
-//            setSaveBtnState(false);
-//            showInfoDialog(v, infoSb.toString());
-//        } else {
             SharedPreferences settings = getSharedPreferences(APP_NAME, 0);// + "_" + String.valueOf(mAppWidgetId), 0);
             Set<String> usedUrls = new ArraySet<>();
             usedUrls = settings.getStringSet(USED_URLS_AUTOCOMPLETE_SHARED_PREF, usedUrls);
@@ -362,33 +327,32 @@ public class SensGraphConfigure extends AppCompatActivity {
             }
 
             //save settings
-            SimpleDb sdb = SensGraphWidgetProvider.settings;
-            if (sdb.createEntry(mAppWidgetId)) {
-                sdb.setField(0, sensorName);
-                sdb.setField(1, sensorValue);
-                sdb.setField(2, url);
-                //position 3 is for widget pendingIntent
-                sdb.setField(4, updateInterval);
-                sdb.setField(5, new ArrayList()); //used to save values for graph
+            //using file
+//            FileDb.deleteDbFile(v.getContext());
+            FileDb.saveEntry(v.getContext(),
+                    String.valueOf(mAppWidgetId),
+                    sensorName,
+                    sensorValue,
+                    url,
+                    String.valueOf(updateInterval),
+                    "[]");
+
+            DevTools.log(TAG, "FileDb.readDbFile", FileDb.readDbFile(v.getContext()));
+//            FileDb.readDbFile(v.getContext());
+//            DevTools.log(TAG, FileDb.getEntry(v.getContext(), mAppWidgetId));
+
+//            SimpleDb sdb = SensGraphWidgetProvider.settings;
+//            if (sdb.createEntry(mAppWidgetId)) {
+//                sdb.setField(0, sensorName);
+//                sdb.setField(1, sensorValue);
+//                sdb.setField(2, url);
+//                position 3 is for widget pendingIntent
+//                sdb.setField(4, updateInterval);
+//                sdb.setField(5, new ArrayList()); //used to save values for graph
 //                sdb.setField(6, new ArrayList()); //used to save values for debugger
 //                dt.logV(TAG, "save settings updateInterval", updateInterval, "sensorName", sensorName,
 //                        "sensorValue", sensorValue, "url", url);
-            }
-
-            //dev++++++
-            StaticDb.createEntry(mAppWidgetId, new DbEntry());
-//            DevTools.log(TAG, "StaticDb.createEntry(mAppWidgetId);",
-//                    "StaticDb.getCurrEntry(mAppWidgetId)", StaticDb.getCurrEntry(mAppWidgetId));
-            StaticDb.setField(0, sensorName);
-//            DevTools.logE(TAG, "StaticDb.getField(0)", StaticDb.getField(0));
-            StaticDb.setField(1, sensorValue);
-            StaticDb.setField(2, url);
-//            position 3 is for widget pendingIntent
-            StaticDb.setField(4, updateInterval);
-            StaticDb.setField(5, new ArrayList()); //used to save values for graph
-            //dev------
-
-
+//            }
 
             //manual first widget update using SensGraphWidgetProvider class
             SensGraphWidgetProvider sensgraphWidgetProvider = new SensGraphWidgetProvider();
@@ -547,7 +511,7 @@ public class SensGraphConfigure extends AppCompatActivity {
          * */
         protected void onPostExecute(String result) {
             //stops loading animation
-            ImageView infinityLoaderView = (ImageView) findViewById(R.id.infinityLoaderView);
+            ImageView infinityLoaderView = findViewById(R.id.infinityLoaderView);
             AnimationDrawable infinityLoaderAnimation;
             infinityLoaderAnimation = (AnimationDrawable) infinityLoaderView.getDrawable();
             infinityLoaderAnimation.stop();
@@ -572,21 +536,21 @@ public class SensGraphConfigure extends AppCompatActivity {
                      */
                     public void onItemClick(AdapterView parent, View v, int position, long id) {
                         String nameClicked;
-                        TextView tvClicked = (TextView) v.findViewById(R.id.namesListTextView);
+                        TextView tvClicked = v.findViewById(R.id.namesListTextView);
 
                         nameClicked = tvClicked.getText().toString();
                         nameClicked = clearControlChars(nameClicked);
                         if (sensorName == null) { //if not set
                             if (!equalsNullSafe(nameClicked, sensorValue)) { //same element for name and value is not allowed
                                 sensorName = nameClicked;
-                                final TextView tv = (TextView) findViewById(R.id.sensorNameTv);
+                                final TextView tv = findViewById(R.id.sensorNameTv);
                                 tv.setText(res.getString(R.string.sensor_name_text) + " " + sensorName);
                                 tv.setTextColor(getColorVersionSafe(R.color.greenLight));
                             }
                         } else if (sensorValue == null) {
                             if (!equalsNullSafe(nameClicked, sensorName)) { //same element is not allowed
                                 sensorValue = nameClicked;
-                                final TextView tv = (TextView) findViewById(R.id.sensorValueTv);
+                                final TextView tv = findViewById(R.id.sensorValueTv);
                                 tv.setText(res.getString(R.string.sensor_value_text) + " " + sensorValue);
                                 tv.setTextColor(getColorVersionSafe(R.color.greenLight));
                             }
@@ -600,7 +564,7 @@ public class SensGraphConfigure extends AppCompatActivity {
                 });
                 //updates url field with saved url without ending "/" symbols, if it was corrected
                 //and fixes focus after urlField text change (to not focus on first element editText)
-                final TextView urlField = (TextView) findViewById(R.id.nameUrlValueEdit);
+                final TextView urlField = findViewById(R.id.nameUrlValueEdit);
                 if (!url.equals(urlField.getText())) {
                     urlField.setText(url);
                     namesListView.requestFocus();
