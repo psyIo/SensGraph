@@ -133,8 +133,27 @@ public class SensGraphConfigure extends AppCompatActivity {
         //dev+
 //        TextView urlField = findViewById(R.id.nameUrlValueEdit);
 //        urlField.setText("http://api.thingspeak.com/channels/99791/feeds.json?results=1");
-//        urlField.setText("http://46.251.48.58:6969/get_json/");
-//        urlField.setText("http://46.251.48.58:6969/get_json_saved/");
+//        urlField.setText("http://46.251.48.58:6969/get_saved_json/");
+//        urlField.setText("http://46.251.48.58:6969/get_rand_json/");
+//        SharedPreferences settings = getSharedPreferences(APP_NAME, 0);// + "_" + String.valueOf(mAppWidgetId), 0);
+//        Set<String> usedUrls = new ArraySet<>();
+//        usedUrls = settings.getStringSet(USED_URLS_AUTOCOMPLETE_SHARED_PREF, usedUrls);
+
+        //dev+ clear SharredPreferences
+//                    SharedPreferences.Editor ed = settings.edit();
+//                    usedUrls.add(url);
+//                    ed.remove(USED_URLS_AUTOCOMPLETE_SHARED_PREF);
+//                    ed.commit();
+        //dev-
+
+//        if (!usedUrls.contains(url)) {
+//            SharedPreferences.Editor editor = settings.edit();
+//            usedUrls.add(url);
+//            editor.remove(USED_URLS_AUTOCOMPLETE_SHARED_PREF);
+//            editor.commit(); //apply() does not work correctly here
+//            editor.putStringSet(USED_URLS_AUTOCOMPLETE_SHARED_PREF, usedUrls);
+//            editor.apply();
+//        }
         //dev-
 
         final TextView sensorNameTv = findViewById(R.id.sensorNameTv);
@@ -335,7 +354,7 @@ public class SensGraphConfigure extends AppCompatActivity {
                     sensorValue,
                     url,
                     String.valueOf(updateInterval),
-                    "[]");
+                    "[]", "[]");
 
             DevTools.log(TAG, "FileDb.readDbFile", FileDb.readDbFile(v.getContext()));
 //            FileDb.readDbFile(v.getContext());

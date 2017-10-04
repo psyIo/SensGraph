@@ -7,7 +7,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 //import java.util.Base64;
 import android.util.Base64;
 
@@ -21,6 +23,7 @@ class DevTools {
     final static private String SEPARATOR = " ";
     final static private String ARRAY_VALUE_SEPARATOR = ";";
     final static private String TAG = "DevTools";
+    final static private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss"); //nera locales
 
     static void log(String tag, Object... objects){
         Log.v(tag, makeStringBuilderFromObjectsStatic(objects).toString());
@@ -130,8 +133,13 @@ class DevTools {
             sb.append(String.valueOf(obj));
         } else if (obj instanceof Long) {
             sb.append(String.valueOf(obj));
+        } else if (obj instanceof Double) {
+            sb.append(String.valueOf(obj));
         } else if (obj instanceof Float) {
             sb.append(String.valueOf(obj));
+        } else if (obj instanceof Date) {
+            Date date = (Date) obj;
+            sb.append(dateFormat.format(date));
         } else if (obj instanceof ArrayList) {
             arrayListToStringBuilder(sb, obj);
         } else if (obj instanceof Object[]) {
