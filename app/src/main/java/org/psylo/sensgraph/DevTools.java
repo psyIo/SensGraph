@@ -2,27 +2,18 @@ package org.psylo.sensgraph;
 
 import android.util.Log;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-//import java.util.Base64;
-import android.util.Base64;
 
 
 /**
- * Developement tools
- * Created by psylo on 17.3.11.
+ * Development tools used for debugging
  */
 
 class DevTools {
     final static private String SEPARATOR = " ";
     final static private String ARRAY_VALUE_SEPARATOR = ";";
-    final static private String TAG = "DevTools";
     final static private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss"); //nera locales
 
     static void log(String tag, Object... objects){
@@ -151,10 +142,6 @@ class DevTools {
         return sb.toString();
     }
 
-//    void logE(String tag, Object... objects){
-//        Log.e(tag, makeStringBuilderFromObjects(objects).toString());
-//    }
-
     private StringBuilder makeStringBuilderFromObjects(Object... objects) {
         final StringBuilder sb = new StringBuilder();
         for (Object obj : objects) {
@@ -167,54 +154,5 @@ class DevTools {
         }
         return sb;
     }
-
-    /** Read the object from Base64 string. */
-    public static Object fromBase64String(String s) {
-        Object o = new Object();
-        try {
-            byte[] data = Base64.decode(s, 0);
-            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-            o = ois.readObject();
-            ois.close();
-        } catch (Exception e) {
-            DevTools.logE(TAG, e.toString());
-        }
-        return o;
-    }
-
-    /** Write the object to a Base64 string. */
-    public static String toBase64String(Object o) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(o);
-            oos.close();
-            return Base64.encodeToString(baos.toByteArray(), 0);
-        } catch (IOException e) {
-            DevTools.logE(TAG, e.toString());
-        }
-        return "";
-    }
-
-//    /**
-//     * Return Base64 encoded string as per Android SDK version
-//     * */
-//    @SuppressWarnings("deprecation")
-//    protected String encodeToBase64VersionSafe(Serializable o) throws IOException{
-//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        ObjectOutputStream oos = new ObjectOutputStream(baos);
-//        oos.writeObject(o);
-//        oos.close();
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // 26 and newer
-////            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-////            ObjectOutputStream oos = new ObjectOutputStream(baos);
-////            oos.writeObject(o);
-////            oos.close();
-////            Base64.getEncoder().encodeToString(baos.toByteArray());
-//        } else { // 25 and older
-//            android.util.Base64.encode(baos.toByteArray(),0);
-//        }
-//    }
-
 
 }

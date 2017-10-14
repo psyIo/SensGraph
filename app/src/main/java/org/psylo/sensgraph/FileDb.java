@@ -1,17 +1,23 @@
 package org.psylo.sensgraph;
 
 import android.content.Context;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Date;
 
 /**
- * Created by bdance on 9/21/17.
+ * FileDb
+ * Database that saves data to a file
+ * Every entry is a new line separated by \n
+ * Entry fields are separated by ; symbol
+ * First element is widget ID (int)
  */
 
-public class FileDb {
+class FileDb {
 
     private static final String TAG = "FileDb"; //dev
     private static final String DB_FILE_NAME = "sensgraph.data";
@@ -20,7 +26,13 @@ public class FileDb {
     private static File dbFile;
     private static RandomAccessFile dbRandomAccessFile;
 
-    public static String[] getEntry(Context context, int entryId) {
+    /**
+     * Get database entry
+     * @param context Android context
+     * @param entryId entryId to get
+     * @return String[] if operation was successful, null if not
+     */
+    static String[] getEntry(Context context, int entryId) {
 
         if (!dbFileExist(context)) {
             return null;
@@ -33,15 +45,20 @@ public class FileDb {
                 String readString = dbRandomAccessFile.readLine();
                 return readString.split((VALUE_SEP));
             }
-        }catch (IOException e) {
+        } catch (IOException e) {
             DevTools.logE(TAG, e.toString());
         }
 
         return null;
     }
 
-    @NonNull
-    public static boolean saveEntry(Context context, String... values) {
+    /**
+     * Saves given database entry
+     * @param context Android context
+     * @param values array of string values to save
+     * @return result if operation was successful
+     */
+    static boolean saveEntry(Context context, String... values) {
 
         if (!dbFileExist(context)) {
             return false;
@@ -59,14 +76,23 @@ public class FileDb {
         return replaceExistingFileString(getLinePositions(Integer.parseInt(values[0])), newLine);
     }
 
-    public static boolean deleteEntry(Context context, int entryId) {
-        if (!dbFileExist(context)) {
-            return false;
-        }
-        return replaceExistingFileString(getLinePositions(entryId), "");
+    /**
+     * Deletes entry
+     * @param context Android context
+     * @param entryId entryId to delete
+     * @return result if operation was successful
+     */
+    static boolean deleteEntry(Context context, int entryId) {
+        return dbFileExist(context) && replaceExistingFileString(getLinePositions(entryId), "");
     }
 
-    public static boolean replaceExistingFileString(long[] positions, String newString) {
+    /**
+     * Replaces file part with new bytes, can be used to delete a part if newString is empty
+     * @param positions long[2] with entry positions in file
+     * @param newString New string to write
+     * @return result if operation was successful
+     */
+    private static boolean replaceExistingFileString(long[] positions, String newString) {
         try {
             if ((positions[0] != 0) && (positions[1] != 0)) {
                 long exLineEnd = positions[1];
@@ -84,6 +110,7 @@ public class FileDb {
                 dbRandomAccessFile.writeBytes(newString); //new line
                 dbRandomAccessFile.write(buff, 0, buff.length); //rest of file from buffer
             } else {
+                //new entry to the end
                 dbRandomAccessFile.writeBytes(newString);
             }
             return true;
@@ -94,12 +121,12 @@ public class FileDb {
     }
 
     /**
-     *
+     * Gets text line start and end poitions
      * @param entryId entry to get
      * @return  returns long[2] with lines start and end positions
      *      returns [0,0] if entry was not found and leaves pointer at the end of file
      */
-    public static long[] getLinePositions(int entryId) {
+    private static long[] getLinePositions(int entryId) {
         String readString;
         String[] strArr;
         long prevLineEnd = 0;
@@ -125,10 +152,14 @@ public class FileDb {
         positions[0] = 0;
         positions[1] = 0;
         return positions;
-
     }
 
-    public static String makeValueStringFromArray(String... strArr) {
+    /**
+     * Makes String from String[] to save as database entry
+     * @param strArr values to save
+     * @return String[] converted to String
+     */
+    private static String makeValueStringFromArray(String... strArr) {
         StringBuilder sb = new StringBuilder();
 
         if ((strArr == null) || (strArr.length == 0)) {
@@ -148,11 +179,11 @@ public class FileDb {
     }
 
     /**
-     *
+     * Checks if database file exists, if not tries to create new one
      * @param context android context
      * @return boolean if db file exist (or was successfully created)
      */
-    public static boolean dbFileExist(Context context) {
+    private static boolean dbFileExist(Context context) {
 
         try {
             dbFile = new File(context.getFilesDir(), DB_FILE_NAME);
@@ -176,7 +207,12 @@ public class FileDb {
         return dbFile.exists();
     }
 
-    public static String readDbFile(Context context) {
+    /**
+     * Reads whole db file and prints in Android monitor
+     * @param context Android context
+     * @return database file as string
+     */
+    static String readDbFile(Context context) {
 
         if (!dbFileExist(context)) {
             return "Error!!Db file does not exist!!";
@@ -202,7 +238,11 @@ public class FileDb {
         }
     }
 
-    public static void deleteDbFile(Context context) {
+    /**
+     * Deletes db file
+     * @param context Android context
+     */
+    static void deleteDbFile(Context context) {
         dbFile = new File(context.getFilesDir(), DB_FILE_NAME);
         if (dbFile.exists()) {
             if (dbFile.delete()) {
@@ -213,5 +253,4 @@ public class FileDb {
         }
 
     }
-
 }

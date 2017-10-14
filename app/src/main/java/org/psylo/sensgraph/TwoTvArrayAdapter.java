@@ -9,8 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 /**
- * Two array adpter for a ListView with two textViews
- * Created by psylo on 17.3.26.
+ * Two array adapter for a ListView with two textViews
  */
 
 class TwoTvArrayAdapter extends ArrayAdapter<String>{
@@ -18,8 +17,6 @@ class TwoTvArrayAdapter extends ArrayAdapter<String>{
     private final Activity context;
     private final String[] vals;
     private final String[] names;
-//    private final String TAG = "TwoTvArrayAdapter";
-    static DevTools dt = new DevTools(); //dev
 
     TwoTvArrayAdapter(Activity context, String[] names, String[] vals) {
         super(context, R.layout.names_list_item_layout, names);
@@ -38,10 +35,10 @@ class TwoTvArrayAdapter extends ArrayAdapter<String>{
         ViewHolder mViewHolder;
         if (view == null) {
             LayoutInflater inflater = context.getLayoutInflater();
-            view = inflater.inflate(R.layout.names_list_item_layout, null);
+            view = inflater.inflate(R.layout.names_list_item_layout, null); //here if not null passed works incorectly
             mViewHolder = new ViewHolder();
-            mViewHolder.pathTv = (TextView) view.findViewById(R.id.namesListTextView);
-            mViewHolder.valueTv = (TextView) view.findViewById(R.id.namesListValueTextView);
+            mViewHolder.pathTv = view.findViewById(R.id.namesListTextView);
+            mViewHolder.valueTv = view.findViewById(R.id.namesListValueTextView);
             view.setTag(mViewHolder);
 
         } else {

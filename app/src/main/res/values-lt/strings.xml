@@ -11,6 +11,7 @@
     <string name="update_time_text">Atnaujinimo dažnis (min)</string>
     <string name="update_time_default_interval">30</string>
     <string name="just_error">Klaida!!!</string>
+    <string name="hours_short">val</string>
 
     <string name="menu_save">Išsaugoti</string>
     <string name="menu_refresh">Atnaujinti</string>

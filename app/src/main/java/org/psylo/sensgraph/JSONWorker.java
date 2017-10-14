@@ -21,7 +21,6 @@ import java.util.Iterator;
 
 /**
  * Class designed to work with JSON file (loaded as mainJObj type JSONObject attribute) (download, parse etc.)
- * Created by psylo on 17.3.3.
  */
 
 class JSONWorker {
@@ -29,7 +28,6 @@ class JSONWorker {
     private static final String TAG = "SensGraphJSONWorker"; //dev
     private static final String NAME_SEP = ":"; //separator used in JSON paths
     private static final char NULL_CHAR = 0;//null char, used for list identification
-    private static final DevTools dt = new DevTools();
     private JSONObject mainJObj;
     ArrayList<String> namesList;
     ArrayList<String> valuesList;
@@ -83,7 +81,7 @@ class JSONWorker {
         return errMsg;
     }
 
-    String getFullErrorString(Context context, String strToParse) {
+    private String getFullErrorString(Context context, String strToParse) {
         String errMsg = "";
         Resources res = context.getResources();
         try {
@@ -112,7 +110,7 @@ class JSONWorker {
         return errMsg;
     }
 
-    static String readStream(InputStream is) {
+    private static String readStream(InputStream is) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
 
@@ -123,12 +121,12 @@ class JSONWorker {
                 sb.append("\n");
             }
         } catch (IOException e) {
-            dt.logE(TAG, e);
+            DevTools.logE(TAG, e);
         } finally {
             try {
                 is.close();
             } catch (IOException e) {
-                dt.logE(TAG, e);
+                DevTools.logE(TAG, e);
             }
         }
         return sb.toString();
@@ -148,7 +146,7 @@ class JSONWorker {
         namesList = new ArrayList<>();
         valuesList = new ArrayList<>();
         if (mainJObjLoaded()) {
-            dt.logV(TAG, "mainJObj.toString()", mainJObj.toString());
+            DevTools.log(TAG, "mainJObj.toString()", mainJObj.toString());
             addNamesFromJsonObjectToList(namesList, valuesList, mainJObj, "", 0);
         }
     }
@@ -181,7 +179,7 @@ class JSONWorker {
         }
     }
 
-    Boolean mainJObjLoaded() {
+    private Boolean mainJObjLoaded() {
         return mainJObj != null;
     }
 
@@ -219,7 +217,7 @@ class JSONWorker {
                         localNames += "\n";
                         addNamesFromJsonObjectToList(namesList, valuesList, jsonObj, localNames, locLevel);
                     } catch (Exception e) {
-                        dt.logE(TAG, e);
+                        DevTools.logE(TAG, e);
                     }
                 } else if (obj instanceof JSONArray) {
                     try {
@@ -227,7 +225,7 @@ class JSONWorker {
                         localNames += "\n";
                         addNamesFromJSONArrayToList(namesList, valuesList, jsonArr, localNames, locLevel);
                     } catch (Exception e) {
-                        dt.logE(TAG, e);
+                        DevTools.logE(TAG, e);
                     }
                 } else { //just a value String, Boolean etc.
                     namesList.add(localNames);
@@ -244,7 +242,6 @@ class JSONWorker {
             Object valueObj = new Object();
             int listStartIdx;
             int listIdx = -1;
-//            dt.logV(TAG, "getValueFromPath path", path);
             jObj = mainJObj;
 
             //clears unnecessary \" chars and converts element separators to \", to split later
@@ -253,10 +250,8 @@ class JSONWorker {
                     .replace("\":", "\"")   //last obj
                     .replace("]\0:\0[", "]\"\0[") //list element next list element
                     .replace("]\0:", "]");  //list element end
-//            dt.logV(TAG, "getValueFromPath path replaced", path);
             String[] pathList = path.split("\"");
             for (String name : pathList) {
-//                dt.logV(TAG, "name", name);
                 if (name.equals("\"\"")) { //empty string in path saved as ""
                     name = "";
                 } else {
@@ -264,7 +259,6 @@ class JSONWorker {
                     listIdx = -1;
                     if (name.substring(name.length() - 1).equals("]")) {
                         listStartIdx = name.lastIndexOf("\0[");
-//                        dt.logV(TAG, "listStartIdx", listStartIdx);
                         if (listStartIdx > -1) {
                             listIdx = Integer.parseInt(name.substring(listStartIdx + 2, name.length() - 1));
                         }

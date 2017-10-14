@@ -32,7 +32,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.Set;
 
 
@@ -58,13 +57,11 @@ public class SensGraphConfigure extends AppCompatActivity {
 
         //sets saved used URLs saved list for autocompletion
         final AutoCompleteTextView urlAutoCompleteTv = findViewById(R.id.nameUrlValueEdit);
-//        final AutoCompleteTextView urlAutoCompleteTv = (AutoCompleteTextView) findViewById(R.id.nameUrlValueEdit);
         SharedPreferences sharedPrefs = getSharedPreferences(APP_NAME, 0);
         Set<String> usedUrls = new ArraySet<>();
         usedUrls = sharedPrefs.getStringSet(USED_URLS_AUTOCOMPLETE_SHARED_PREF, usedUrls);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 R.layout.single_text_view, usedUrls.toArray(new String[0]));
-//                R.layout.single_text_view_for_debug_list, usedUrls.toArray(new String[0]));
         urlAutoCompleteTv.setAdapter(adapter);
 
         //softInput handling
@@ -93,20 +90,17 @@ public class SensGraphConfigure extends AppCompatActivity {
 
         //update interval EditText
         EditText updateIntervalEt = findViewById(R.id.updateIntervalEditText);
-//        EditText updateIntervalEt = (EditText) findViewById(R.id.updateIntervalEditText);
         updateIntervalEt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 //if action is DONE or NEXT then updates list and hides softKeyboard
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-//                    hideSoftInputAndUpdateList();
                     hideSoftInput();
                     configHasErrors(v, false);
                     handled = true;
                 }
                 if (actionId == EditorInfo.IME_ACTION_NEXT) { //next is nameList which is focused and softKeyboard is shown, and we do not want that
-//                    hideSoftInputAndUpdateList();
                     hideSoftInput();
                     configHasErrors(v, false);
                     handled = true;
@@ -139,12 +133,12 @@ public class SensGraphConfigure extends AppCompatActivity {
 //        Set<String> usedUrls = new ArraySet<>();
 //        usedUrls = settings.getStringSet(USED_URLS_AUTOCOMPLETE_SHARED_PREF, usedUrls);
 
-        //dev+ clear SharredPreferences
+//         //clear SharredPreferences
 //                    SharedPreferences.Editor ed = settings.edit();
 //                    usedUrls.add(url);
 //                    ed.remove(USED_URLS_AUTOCOMPLETE_SHARED_PREF);
 //                    ed.commit();
-        //dev-
+
 
 //        if (!usedUrls.contains(url)) {
 //            SharedPreferences.Editor editor = settings.edit();
@@ -329,13 +323,6 @@ public class SensGraphConfigure extends AppCompatActivity {
             Set<String> usedUrls = new ArraySet<>();
             usedUrls = settings.getStringSet(USED_URLS_AUTOCOMPLETE_SHARED_PREF, usedUrls);
 
-            //dev+ clear SharredPreferences
-//                    SharedPreferences.Editor ed = settings.edit();
-//                    usedUrls.add(url);
-//                    ed.remove(USED_URLS_AUTOCOMPLETE_SHARED_PREF);
-//                    ed.commit();
-            //dev-
-
             if (!usedUrls.contains(url)) {
                 SharedPreferences.Editor editor = settings.edit();
                 usedUrls.add(url);
@@ -347,7 +334,6 @@ public class SensGraphConfigure extends AppCompatActivity {
 
             //save settings
             //using file
-//            FileDb.deleteDbFile(v.getContext());
             FileDb.saveEntry(v.getContext(),
                     String.valueOf(mAppWidgetId),
                     sensorName,
@@ -356,30 +342,12 @@ public class SensGraphConfigure extends AppCompatActivity {
                     String.valueOf(updateInterval),
                     "[]", "[]");
 
-            DevTools.log(TAG, "FileDb.readDbFile", FileDb.readDbFile(v.getContext()));
-//            FileDb.readDbFile(v.getContext());
-//            DevTools.log(TAG, FileDb.getEntry(v.getContext(), mAppWidgetId));
-
-//            SimpleDb sdb = SensGraphWidgetProvider.settings;
-//            if (sdb.createEntry(mAppWidgetId)) {
-//                sdb.setField(0, sensorName);
-//                sdb.setField(1, sensorValue);
-//                sdb.setField(2, url);
-//                position 3 is for widget pendingIntent
-//                sdb.setField(4, updateInterval);
-//                sdb.setField(5, new ArrayList()); //used to save values for graph
-//                sdb.setField(6, new ArrayList()); //used to save values for debugger
-//                dt.logV(TAG, "save settings updateInterval", updateInterval, "sensorName", sensorName,
-//                        "sensorValue", sensorValue, "url", url);
-//            }
-
             //manual first widget update using SensGraphWidgetProvider class
             SensGraphWidgetProvider sensgraphWidgetProvider = new SensGraphWidgetProvider();
             sensgraphWidgetProvider.onUpdate(v.getContext(),
                     AppWidgetManager.getInstance(v.getContext()),
                     new int[] { mAppWidgetId }
             );
-            DevTools.log(TAG, "sensgraphWidgetProvider", sensgraphWidgetProvider);
 
             //finnish activity
             Intent resultIntent = new Intent();
@@ -468,8 +436,6 @@ public class SensGraphConfigure extends AppCompatActivity {
         }
         return result;
     }
-
-//    private
 
     /**
      * Return Color int as per Android SDK version
