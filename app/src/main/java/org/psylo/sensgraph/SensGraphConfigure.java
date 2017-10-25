@@ -125,6 +125,7 @@ public class SensGraphConfigure extends AppCompatActivity {
         });
 
         //dev+
+
 //        TextView urlField = findViewById(R.id.nameUrlValueEdit);
 //        urlField.setText("http://api.thingspeak.com/channels/99791/feeds.json?results=1");
 //        DevTools.log(TAG, "FileDb.readDbFile(urlField.getContext())", FileDb.readDbFile(urlField.getContext()));
