@@ -32,6 +32,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.Set;
 
 
@@ -40,7 +41,6 @@ public class SensGraphConfigure extends AppCompatActivity {
     static final String TAG = "SensGraphConfAct";
     static final String APP_NAME = "SensGraph";
     static final String USED_URLS_AUTOCOMPLETE_SHARED_PREF = "USED_URLS";
-    static final DevTools dt = new DevTools(); //dev
     protected String sensorName;  //sensor name from JSON
     protected String sensorValue; //sensor value from JSON
     protected String url; //url to get response from
@@ -127,6 +127,7 @@ public class SensGraphConfigure extends AppCompatActivity {
         //dev+
 //        TextView urlField = findViewById(R.id.nameUrlValueEdit);
 //        urlField.setText("http://api.thingspeak.com/channels/99791/feeds.json?results=1");
+//        DevTools.log(TAG, "FileDb.readDbFile(urlField.getContext())", FileDb.readDbFile(urlField.getContext()));
 //        urlField.setText("http://46.251.48.58:6969/get_saved_json/");
 //        urlField.setText("http://46.251.48.58:6969/get_rand_json/");
 //        SharedPreferences settings = getSharedPreferences(APP_NAME, 0);// + "_" + String.valueOf(mAppWidgetId), 0);
@@ -223,7 +224,6 @@ public class SensGraphConfigure extends AppCompatActivity {
             } else {
                 mi.setIcon(getDrawableVersionSafe(R.drawable.save_btn_60));
             }
-            dt.logV("setSaveBtnState", "stateOkToSave", stateOkToSave);
             bConfigOkToSaveState = stateOkToSave;
         }
     }
@@ -342,6 +342,52 @@ public class SensGraphConfigure extends AppCompatActivity {
                     String.valueOf(updateInterval),
                     "[]", "[]");
 
+            //dev+
+            //test values
+//            String testingDay = "25";
+//            String pastTestDay = "24";
+//            String pastPastTestDay = "23";
+//            String testingMonth = "10";
+//            FileDb.saveEntry(v.getContext(),
+//                    String.valueOf(mAppWidgetId),
+//                    sensorName,
+//                    sensorValue,
+//                    url,
+//                    String.valueOf(updateInterval),
+//                    "[" +
+//                        "17.31," +
+//                        "13.31," +
+//                        "25.31," +
+//                        "88.31," +
+//                        "22.31," +
+//                        "1.31," +
+//                        "66.31," +
+//                        "99.31," +
+//                        "106.31," +
+//                        "26.31," +
+//                        "45.31," +
+//                        "86.31," +
+//                        "77.31," +
+//                        "89.31" +
+//                    "]",
+//                    "[" +
+//                        "2017." + testingMonth + "." + pastPastTestDay + " 08:49:51," +
+//                        "2017." + testingMonth + "." + pastPastTestDay + " 10:19:53," +
+//                        "2017." + testingMonth + "." + pastPastTestDay + " 14:29:55," +
+//                        "2017." + testingMonth + "." + pastPastTestDay + " 17:39:56," +
+//                        "2017." + testingMonth + "." + pastPastTestDay + " 23:49:58," +
+//                        "2017." + testingMonth + "." + pastTestDay + " 08:58:59," +
+//                        "2017." + testingMonth + "." + pastTestDay + " 15:00:04," +
+//                        "2017." + testingMonth + "." + pastTestDay + " 16:00:08," +
+//                        "2017." + testingMonth + "." + pastTestDay + " 23:00:11," +
+//                        "2017." + testingMonth + "." + pastTestDay + " 03:00:11," +
+//                        "2017." + testingMonth + "." + pastTestDay + " 08:00:13," +
+//                        "2017." + testingMonth + "." + pastTestDay + " 14:00:24," +
+//                        "2017." + testingMonth + "." + pastTestDay + " 19:00:32," +
+//                        "2017." + testingMonth + "." + testingDay + " 23:00:34" +
+//                    "]");
+            //dev-
+
             //manual first widget update using SensGraphWidgetProvider class
             SensGraphWidgetProvider sensgraphWidgetProvider = new SensGraphWidgetProvider();
             sensgraphWidgetProvider.onUpdate(v.getContext(),
@@ -424,7 +470,7 @@ public class SensGraphConfigure extends AppCompatActivity {
             //used to eliminate app crash exception if config activity was closed immediately
             //after refresh action (async task) was run and not finished
             //In other words, handles exception if activity has been closed before showing dialog
-            dt.logV(TAG, e);
+            DevTools.logE(TAG, e);
         }
     }
 
@@ -502,6 +548,8 @@ public class SensGraphConfigure extends AppCompatActivity {
             infinityLoaderAnimation.stop();
             infinityLoaderView.setImageDrawable(null);
 
+//            result = "{\"Sensor_name1\":\"Outside_sensor\", \"Sensor1_value\":\"50.55\"}";  //dev
+//            DevTools.log(TAG, "result", result);
             String errStr = jWorker.parseJSONFromResponse(context, result);
             if (!errStr.equals("")) { //error
                 //user info

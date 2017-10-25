@@ -28,9 +28,11 @@
     <string name="config_activity_error_msg_2">Klaida apdorojant aptnaujinimo dažnį</string>
 
     <string name="help_info_text_1">1. Įveskite URL ir atnaujinkite kad gautumėte JSON atsakymą</string>
-    <string name="help_info_text_2">2. Pasirinkite sensoriaus Pavadinimą ir Reikšmę, kurie bus vaizduojami valdiklyje</string>
-    <string name="help_info_text_3">3. Paspauskite ant jau parinkto pavadinimo ar reikšmės, kad panaikinti pasirinkimą</string>
+    <string name="help_info_text_2">2. Pasirinkite sensoriaus Pavadinimą ir Reikšmę, kurie bus vaizduojami valdiklyje.</string>
+    <string name="help_info_text_3">3. Paspauskite ant jau parinkto pavadinimo ar reikšmės, kad panaikinti pasirinkimą. Simbolis : atskiria JSON reikšmes</string>
     <string name="help_info_text_4">4. Įveskite atnaujinimo dažnį minutėmis</string>
     <string name="help_info_text_5">5. Paspauskite migtuką išsaugoti, kad sukurti valdiklį</string>
     <string name="help_info_text_6">6. Paspauskite ant valdiklio, kad jį atnaujinti bet kuriuo metu</string>
+
+    <string name="x">X</string>
 </resources>

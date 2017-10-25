@@ -33,10 +33,6 @@ class DevTools {
         return sb;
     }
 
-    void logV(String tag, Object... objects){
-        Log.v(tag, makeStringBuilderFromObjects(objects).toString());
-    }
-
     private static void stringArrToStringBuilder(StringBuilder sb, Object obj) {
         String[] strArr = (String[]) obj;
         sb.append("String[");

@@ -33,7 +33,7 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
     static final String TAG = "SensGraphWidgetProvider";
     static final String APP_NAME = "SensGraph";
     protected static AlarmManager alarmManager;
-    SimpleDateFormat dateFormat;
+    SimpleDateFormat dateFormatFull, dateFormatHourMinute, dateFormatMonthDay, dateFormatDay;
 //    widgetConfig structure:
 //    0: (String) sensorNamePath
 //    1: (String) sensorValuePath
@@ -49,7 +49,10 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         //manually updating widget appWidgetIds consists only of single widget id
 //        SharedPreferences sharedPreferences = context.getSharedPreferences(APP_NAME, 0);
-        dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss", getDefaultLocale(context));
+        dateFormatFull = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss", getDefaultLocale(context));
+        dateFormatHourMinute = new SimpleDateFormat("HH:mm", getDefaultLocale(context));
+        dateFormatMonthDay = new SimpleDateFormat("MM.dd", getDefaultLocale(context));
+        dateFormatDay = new SimpleDateFormat("dd", getDefaultLocale(context));
         //dev+
         //set update datetime view
 //        FileDb.deleteEntry(context, 0);
@@ -61,7 +64,7 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
 //            debugEntries = new String[7];
 //            DevTools.stringArrToStringBuilder(sb, debugEntries);
 //            debugEntries[0] = String.valueOf(0);
-//            debugEntries[1] = "onUpdate appWidgetIds " + intArrToString(appWidgetIds) + "DT " + dateFormat.format(currSysTime);
+//            debugEntries[1] = "onUpdate appWidgetIds " + intArrToString(appWidgetIds) + "DT " + dateFormatFull.format(currSysTime);
 //            debugEntries[2] = "";
 //            debugEntries[3] = "";
 //            debugEntries[4] = "";
@@ -69,7 +72,7 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
 //            debugEntries[6] = "";
 //        } else {
 //            String entries = debugEntries[1];
-//                entries = entries + "+appWidgetIds " + intArrToString(appWidgetIds) + "DT " + dateFormat.format(currSysTime);
+//                entries = entries + "+appWidgetIds " + intArrToString(appWidgetIds) + "DT " + dateFormatFull.format(currSysTime);
 //            debugEntries[1] = entries;
 //        }
 //        FileDb.saveEntry(context, debugEntries);
@@ -77,7 +80,7 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
 
         for (int widgetId : appWidgetIds) {
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(),
-                    R.layout.simple_widget);
+                    R.layout.widget_view);
             Intent intent = new Intent(context, SensGraphWidgetProvider.class);
 
             //This causes each widget to have a unique PendingIntent
@@ -96,13 +99,10 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
 
             String[] widgetConfig = FileDb.getEntry(context, widgetId);
             if (widgetConfig != null) {
-                DevTools.log(TAG, "widgetConfig", widgetConfig);
                 UpdateViewFromJSON jsonTask = new UpdateViewFromJSON(context, remoteViews, widgetId,
                         appWidgetManager, widgetConfig[1], widgetConfig[2]);
                 jsonTask.execute(widgetConfig[3]);
 
-                //sets pending intent in position 3 (4) to reuse it in onDeleted() method to
-                //cancel alarmManager job
                 long interval;
                 if (!widgetConfig[4].equals("")) {
                     //updates when device is awake only
@@ -189,9 +189,9 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
         }
 
         values = values.substring(1,values.length()-1); //removes [] symbols
-        String[] valuesSplited = values.split(",");
+        String[] valuesSplitted = values.split(",");
         ArrayList<Float> resultList = new ArrayList<>();
-        for (String str : valuesSplited) {
+        for (String str : valuesSplitted) {
             resultList.add(Float.parseFloat(str));
         }
 
@@ -212,18 +212,17 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
 
         Date date;
         values = values.substring(1,values.length()-1); //removes [] symbols
-        String[] valuesSplited = values.split(",");
+        String[] valuesSplitted = values.split(",");
         ArrayList<Date> resultList = new ArrayList<>();
         try {
-            for (String str : valuesSplited) {
-                date = dateFormat.parse(str);
+            for (String str : valuesSplitted) {
+                date = dateFormatFull.parse(str);
                 resultList.add(date);
             }
         } catch (ParseException e) {
             DevTools.logE(TAG, e.toString());
         }
 
-        DevTools.log(TAG, "parseStringToDateList resultList", resultList);
         return resultList;
     }
 
@@ -272,8 +271,10 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
          * @param result String got from doInBackground function (http response, or error msg)
          */
         protected void onPostExecute(String result) {
+//            result = "{\"Sensor_name1\":\"Outside_sensor\", \"Sensor1_value\":\"50.55\"}";  //dev
             String errStr = jWorker.parseJSONFromResponse(context, result);
             String sSensorValue;
+            DevTools.log(TAG, "onPostExecute result", result, errStr);
             if (errStr.equals("")) { //no error
                 jWorker.mainJsonObjFromString(result);
                 remoteViews.setTextViewText(R.id.sensorNameTextView,
@@ -366,6 +367,7 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
             float fVerticalStepSizePixelMultiplyier;
             float fMaxValue = Float.MIN_VALUE;
             float fMinValue = Float.MAX_VALUE;
+            float graphTextSize = 25;
 
             //finding min max values
             for (Object value : widgetValuesList) {
@@ -427,14 +429,19 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
             boundsPath.lineTo(iBitmapWidth, iBitmapHeight - 3);
             boundsPath.moveTo(0, iBitmapHeight / 2);
             boundsPath.lineTo(iBitmapWidth, iBitmapHeight / 2);
+
             //time lines
             //last value
-            Date firstUpdate = (Date) widgetUpdateTimesList.get(0);
-            Date lastUpdate = (Date) widgetUpdateTimesList.get(widgetUpdateTimesList.size()-1);
-            long timeDiff = lastUpdate.getTime() - firstUpdate.getTime();
             boundsPath.moveTo(3, 0);
             boundsPath.lineTo(3, iBitmapHeight);
-            canvas.drawText(convertDoubleTimeToString(timeDiff), 8, iBitmapHeight / 2 + 25, textPaint);
+            Date firstUpdate = (Date) widgetUpdateTimesList.get(0);
+            Date lastUpdate = (Date) widgetUpdateTimesList.get(widgetUpdateTimesList.size()-1);
+            Date midUpdate;
+            canvas.drawText(dateFormatHourMinute.format(firstUpdate), 8, iBitmapHeight / 2 + graphTextSize, textPaint);
+            if (!dateFormatDay.format(lastUpdate).equals(dateFormatDay.format(firstUpdate))) {
+                canvas.drawText(dateFormatMonthDay.format(firstUpdate), 8, iBitmapHeight / 2 + graphTextSize * 2, textPaint);
+            }
+
             //middle value
             if (widgetUpdateTimesList.size() > 2) {
                 int midPosition = (int) (Math.round(widgetUpdateTimesList.size() / 2.0));
@@ -442,20 +449,30 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
                 float midPositionPixels = (float) (iStepSize * midPosition);
                 boundsPath.moveTo(midPositionPixels, 0);
                 boundsPath.lineTo(midPositionPixels, iBitmapHeight);
-                Date midUpdate = (Date) widgetUpdateTimesList.get(midPosition);
-                timeDiff = lastUpdate.getTime() - midUpdate.getTime();
-                canvas.drawText(convertDoubleTimeToString(timeDiff), midPositionPixels + 5, iBitmapHeight / 2 + 25, textPaint);
+                midUpdate = (Date) widgetUpdateTimesList.get(midPosition);
+                canvas.drawText(dateFormatHourMinute.format(midUpdate), midPositionPixels + 5,
+                        iBitmapHeight / 2 + graphTextSize, textPaint);
+                if (!dateFormatDay.format(lastUpdate).equals(dateFormatDay.format(midUpdate))) {
+                    canvas.drawText(dateFormatMonthDay.format(midUpdate), midPositionPixels + 5,
+                            iBitmapHeight / 2 + graphTextSize * 2, textPaint);
+                }
             }
             if (widgetUpdateTimesList.size() > 5) {
+
                 //start-middle value
                 int startMidPosition = (int) (Math.round(widgetUpdateTimesList.size() / 4.0));
                 startMidPosition -= 1; //here -1 because List index first element is 0, not 1
                 float startMidPositionPixels = (float) (iStepSize * startMidPosition);
                 boundsPath.moveTo(startMidPositionPixels, 0);
                 boundsPath.lineTo(startMidPositionPixels, iBitmapHeight);
-                Date midUpdate = (Date) widgetUpdateTimesList.get(startMidPosition);
-                timeDiff = lastUpdate.getTime() - midUpdate.getTime();
-                canvas.drawText(convertDoubleTimeToString(timeDiff), startMidPositionPixels + 5, iBitmapHeight / 2 + 25, textPaint);
+                midUpdate = (Date) widgetUpdateTimesList.get(startMidPosition);
+                canvas.drawText(dateFormatHourMinute.format(midUpdate), startMidPositionPixels + 5,
+                        iBitmapHeight / 2 + graphTextSize, textPaint);
+                if (!dateFormatDay.format(lastUpdate).equals(dateFormatDay.format(midUpdate))) {
+                    canvas.drawText(dateFormatMonthDay.format(midUpdate), startMidPositionPixels + 5,
+                            iBitmapHeight / 2 + graphTextSize * 2, textPaint);
+                }
+
                 //end-middle value
                 int endMidPosition = (int) (Math.round(widgetUpdateTimesList.size() * 3 / 4.0));
                 endMidPosition -= 1; //here -1 because List index first element is 0, not 1
@@ -463,8 +480,12 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
                 boundsPath.moveTo(endMidPositionPixels, 0);
                 boundsPath.lineTo(endMidPositionPixels, iBitmapHeight);
                 midUpdate = (Date) widgetUpdateTimesList.get(endMidPosition);
-                timeDiff = lastUpdate.getTime() - midUpdate.getTime();
-                canvas.drawText(convertDoubleTimeToString(timeDiff), endMidPositionPixels + 5, iBitmapHeight / 2 + 25, textPaint);
+                canvas.drawText(dateFormatHourMinute.format(midUpdate), endMidPositionPixels + 5,
+                        iBitmapHeight / 2 + graphTextSize, textPaint);
+                if (!dateFormatDay.format(lastUpdate).equals(dateFormatDay.format(midUpdate))) {
+                    canvas.drawText(dateFormatMonthDay.format(midUpdate), endMidPositionPixels + 5,
+                            iBitmapHeight / 2 + graphTextSize * 2, textPaint);
+                }
             }
 
             //line drawing
@@ -497,48 +518,67 @@ public class SensGraphWidgetProvider extends AppWidgetProvider {
             return String.valueOf(number).length() * singleNumberWidth;
         }
 
-        /**
-         * Converts double time to human readable format
-         * @param time double to format
-         * @return time converted to String
-         */
-        private String convertDoubleTimeToString(double time) {
-            if (time < 0) {
-                return "";
-            }
-            double sMul = 1000;
-            double mMul = sMul * 60;
-            double hMul = mMul * 60;
-            double dMul = hMul * 24;
-            double moMul = dMul * 30;
-            if (time < sMul) { //ms
-                return String.valueOf((int) time) + "ms";
-            } else if (time < mMul) { //s
-                return divideAndFormat(time, sMul) + "s";
-            } else if (time < hMul) { //min
-                return divideAndFormat(time, mMul) + "min";
-            } else if (time < dMul) { //hr
-                return divideAndFormat(time, hMul) +
-                        context.getResources().getString(R.string.hours_short); //lt val
-            } else if (time < moMul) { //day
-                return divideAndFormat(time, dMul) + "d";
-            } else {
-                return "";
-            }
-        }
+//        /**
+//         * Converts double time to human readable format
+//         * @param time double to format
+//         * @return time converted to String
+//         */
+//        private String convertDoubleTimeToString(double time) {
+//            if (time < 0) {
+//                return "";
+//            }
+//            String result;
+//            double sMul = 1000;
+//            double mMul = sMul * 60;
+//            double hMul = mMul * 60;
+//            double dMul = hMul * 24;
+//            double moMul = dMul * 30;
+//            if (time < sMul) { //ms
+//                return String.valueOf((int) time) + "ms";
+//            } else if (time < mMul) { //s
+//                return divideAndFormat(time, sMul) + "s";
+//            } else if (time < hMul) { //min
+//                return divideAndFormat(time, mMul) + "min";
+//            } else if (time < dMul) { //hr
+//                result = divideAndFormat(time, hMul) +
+//                        context.getResources().getString(R.string.hours_short); //lt val
+//                return result;
+//            } else if (time < moMul) { //day
+//                result = divideAndFormat(time, dMul) + "d";
+//                return result;
+//            } else {
+//                return "";
+//            }
+//        }
 
-        /**
-         * Helper function to divide time by time unit, convert to int and the to String
-         * @param time time to format
-         * @param divisor time unit
-         * @return division result if divisor is not 0
-         */
-        private String divideAndFormat(double time, double divisor) {
-            if (divisor == 0) {
-                return "";
-            }
-            return String.valueOf((int) (time / divisor));
-        }
+//        /**
+//         * Converts double time number of whole days
+//         * @param time double to format
+//         * @return calculated whole days plus "day" abbreviation
+//         */
+//        private String generateDayDifferenceText(double time) {
+//
+//            String result = "";
+//            double dayMul = 1000 * 60 * 60 * 24;
+////            if (time < dayMul) {
+////                return result;
+////            }
+//            result = "-" + divideAndFormat(time, dayMul) + "d";
+//            return result;
+//        }
+//
+//        /**
+//         * Helper function to divide time by time unit, convert to int and the to String
+//         * @param time time to format
+//         * @param divisor time unit
+//         * @return division result if divisor is not 0
+//         */
+//        private String divideAndFormat(double time, double divisor) {
+//            if (divisor == 0) {
+//                return "";
+//            }
+//            return String.valueOf((int) (time / divisor));
+//        }
     }
 }
 

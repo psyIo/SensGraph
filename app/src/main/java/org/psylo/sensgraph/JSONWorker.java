@@ -146,7 +146,6 @@ class JSONWorker {
         namesList = new ArrayList<>();
         valuesList = new ArrayList<>();
         if (mainJObjLoaded()) {
-            DevTools.log(TAG, "mainJObj.toString()", mainJObj.toString());
             addNamesFromJsonObjectToList(namesList, valuesList, mainJObj, "", 0);
         }
     }

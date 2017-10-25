@@ -24,6 +24,7 @@
         android:padding="4dp"
         android:inputType="text"
         tools:ignore="LabelFor"
+        android:layout_marginRight="10dp"
         android:layout_toStartOf="@+id/clearUrlBtn" />
 
     <Button

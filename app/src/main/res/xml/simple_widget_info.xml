@@ -3,7 +3,7 @@
     android:minWidth="120dp"
     android:minHeight="60dp"
     android:updatePeriodMillis="0"
-    android:initialLayout="@layout/simple_widget"
+    android:initialLayout="@layout/widget_view"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen|keyguard"
     android:configure="org.psylo.sensgraph.SensGraphConfigure">

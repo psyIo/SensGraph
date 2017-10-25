@@ -19,7 +19,7 @@ import java.util.Date;
 
 class FileDb {
 
-    private static final String TAG = "FileDb"; //dev
+    private static final String TAG = "FileDb";
     private static final String DB_FILE_NAME = "sensgraph.data";
     private static final String VALUE_SEP = ";"; //separator used separate db entry values
     private static final int DB_ENTRY_SIZE = 7; //max elements per entry (with ID)
@@ -37,10 +37,9 @@ class FileDb {
         if (!dbFileExist(context)) {
             return null;
         }
-
         long[] linesPositions = getLinePositions(entryId);
         try {
-            if ((linesPositions[0] != 0) && (linesPositions[1] != 0)) {
+            if (linesPositions[1] != 0) {
                 dbRandomAccessFile.seek(linesPositions[0]);
                 String readString = dbRandomAccessFile.readLine();
                 return readString.split((VALUE_SEP));
@@ -63,8 +62,6 @@ class FileDb {
         if (!dbFileExist(context)) {
             return false;
         }
-
-        DevTools.log(TAG, "saveEntry called entryId", "values", values);
 
         if (values.length != DB_ENTRY_SIZE) {
             DevTools.logE(TAG, "saveEntry method failed because entry has different element number" +
@@ -94,7 +91,7 @@ class FileDb {
      */
     private static boolean replaceExistingFileString(long[] positions, String newString) {
         try {
-            if ((positions[0] != 0) && (positions[1] != 0)) {
+            if (positions[1] != 0) {
                 long exLineEnd = positions[1];
                 long exLineLen = exLineEnd - positions[0];
                 long lenDiff = newString.length() - exLineLen;
