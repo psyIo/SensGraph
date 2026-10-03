@@ -1,42 +1,48 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace "org.psylo.sensgraph"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "org.psylo.sensgraph"
+        minSdk 21
+        targetSdk 35
+        versionCode 3
+        versionName "SensAlpha3"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
     signingConfigs {
         config {
             keyAlias 'sensgraph'
             keyPassword 'SensGraph88Key'
-            storeFile file('/home/bdance/_dev/andrd.jks')
+            // storeFile file('/home/bdance/_dev/andrd.jks')
             storePassword 'Raktu88Saugykla'
         }
     }
-    compileSdkVersion 26
-    buildToolsVersion "25.0.2"
-    defaultConfig {
-        applicationId "org.psylo.sensgraph"
-        minSdkVersion 19
-        targetSdkVersion 26
-        versionCode 3
-        versionName "SensAlpha3"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    //addded to eliminate "can only be called from within the same library group (groupId=com.android.support)" Google error
-    lintOptions {
+
+    lint {
         disable 'RestrictedApi'
     }
+
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'com.android.support:appcompat-v7:26.1.0'
-    compile 'com.android.support:design:26.1.0'
-    testCompile 'junit:junit:4.12'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.annotation:annotation:1.8.2'
+    
+    testImplementation 'junit:junit:4.13.2'
+    
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 }

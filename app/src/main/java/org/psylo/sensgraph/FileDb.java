@@ -1,13 +1,13 @@
 package org.psylo.sensgraph;
 
 import android.content.Context;
-import android.os.SystemClock;
-import android.support.annotation.NonNull;
+//import android.os.SystemClock;
+//import androidx.annotation.NonNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.Date;
+//import java.util.Date;
 
 /**
  * FileDb
@@ -118,7 +118,7 @@ class FileDb {
     }
 
     /**
-     * Gets text line start and end poitions
+     * Gets text line start and end positions
      * @param entryId entry to get
      * @return  returns long[2] with lines start and end positions
      *      returns [0,0] if entry was not found and leaves pointer at the end of file
@@ -207,7 +207,7 @@ class FileDb {
     /**
      * Reads whole db file and prints in Android monitor
      * @param context Android context
-     * @return database file as string
+     * @return database file as string for debugging
      */
     static String readDbFile(Context context) {
 
@@ -245,7 +245,7 @@ class FileDb {
             if (dbFile.delete()) {
                 DevTools.log(TAG, "dbFile was deleted successfully");
             } else {
-                DevTools.logE(TAG, "Error occured deleting dbFile");
+                DevTools.logE(TAG, "Error occurred deleting dbFile");
             }
         }
 

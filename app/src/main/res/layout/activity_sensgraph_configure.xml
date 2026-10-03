@@ -16,16 +16,19 @@
         android:id="@+id/nameUrlValueEdit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/sensor_url_text_place_holder"
-        android:textAlignment="gravity"
-        android:textSize="@dimen/url_text_size"
-        android:textColor="@color/blue"
-        android:background="@color/greyDark"
-        android:padding="4dp"
-        android:inputType="text"
-        tools:ignore="LabelFor"
+        android:layout_marginTop="200dp"
+        android:layout_marginEnd="14dp"
         android:layout_marginRight="10dp"
-        android:layout_toStartOf="@+id/clearUrlBtn" />
+        android:layout_toStartOf="@+id/clearUrlBtn"
+        android:background="@color/greyDark"
+        android:inputType="text"
+        android:padding="4dp"
+        android:text="@string/sensor_url_text_place_holder"
+
+        android:textAlignment="gravity"
+        android:textColor="@color/blue"
+        android:textSize="@dimen/url_text_size"
+        tools:ignore="LabelFor" />
 
     <Button
         android:id="@+id/clearUrlBtn"
@@ -36,56 +39,61 @@
         android:layout_alignParentTop="true"
         android:text="@string/x"
         android:alpha="0.8"
+        android:layout_marginTop="200dp"
         android:textColor="@color/greyLight"
         android:textSize="@dimen/text_22sp"
         android:background="@color/greyDark"/>
+
+    <!--Lygiuoti kartu su image view-->
 
     <TextView
         android:id="@+id/sensorNameTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/nameUrlValueEdit"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="16dp"
+        android:maxHeight="100dp"
         android:text="@string/sensor_name_text_place_holder"
         android:textAlignment="gravity"
         android:textColor="@color/redLight"
-        android:textSize="@dimen/elements_text_size"
-        android:layout_below="@+id/nameUrlValueEdit"
-        android:maxHeight="100dp"
-        android:layout_marginStart="@dimen/textview_alignment_to_edittext_margin"
-        android:layout_marginTop="10dp"
-        android:layout_alignParentStart="true" />
+        android:textSize="@dimen/elements_text_size" />
 
     <TextView
         android:id="@+id/sensorValueTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/redLight"
-        android:text="@string/sensor_value_text_place_holder"
-        android:textSize="@dimen/elements_text_size"
-        android:textAlignment="textStart"
         android:layout_below="@+id/sensorNameTv"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="8dp"
         android:maxHeight="100dp"
-        android:layout_marginStart="@dimen/textview_alignment_to_edittext_margin"
-        android:layout_marginTop="@dimen/top_margin_config"
-        android:layout_alignParentStart="true" />
+        android:text="@string/sensor_value_text_place_holder"
+        android:textAlignment="textStart"
+        android:textColor="@color/redLight"
+        android:textSize="@dimen/elements_text_size" />
 
     <LinearLayout
         android:id="@+id/linearLayoutUpdateTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:weightSum="5"
         android:layout_below="@+id/sensorValueTv"
-        android:layout_marginTop="6dp"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="14dp"
+        android:weightSum="5">
+
         <TextView
             android:id="@+id/updateTimeText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/textview_alignment_to_edittext_margin"
             android:layout_weight="2"
             android:text="@string/update_time_text"
-            android:textColor="@color/blue"
-            android:textSize="@dimen/elements_text_size"
             android:textAlignment="textStart"
-            android:layout_marginStart="@dimen/textview_alignment_to_edittext_margin"/>
+            android:textColor="@color/blue"
+            android:textSize="@dimen/elements_text_size" />
 
         <EditText
             android:id="@+id/updateIntervalEditText"
@@ -103,19 +111,18 @@
 
     </LinearLayout>
 
-    <!--Lygiuoti kartu su image view-->
     <ListView
         android:id="@+id/namesList"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="366dp"
+        android:layout_height="481dp"
+        android:layout_below="@+id/linearLayoutUpdateTime"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/textview_alignment_to_edittext_margin"
+        android:layout_marginTop="25dp"
         android:divider="@color/blue"
         android:dividerHeight="1px"
         android:scrollbarSize="10dp"
-        android:scrollbarThumbVertical="@drawable/custom_scrollbar"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="@dimen/textview_alignment_to_edittext_margin"
-        android:layout_marginTop="@dimen/top_margin_config"
-        android:layout_below="@+id/linearLayoutUpdateTime"/>
+        android:scrollbarThumbVertical="@drawable/custom_scrollbar" />
     <!--Lygiuoti kartu su list view-->
     <ImageView
         android:id="@+id/infinityLoaderView"

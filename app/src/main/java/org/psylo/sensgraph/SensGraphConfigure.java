@@ -9,13 +9,13 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.v4.util.ArraySet;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.collection.ArraySet;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
-import android.support.v7.view.menu.ActionMenuItemView;
+import androidx.appcompat.view.menu.ActionMenuItemView;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,7 +32,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.io.File;
+//import java.io.File;
 import java.util.Set;
 
 
@@ -126,6 +126,8 @@ public class SensGraphConfigure extends AppCompatActivity {
 
         //dev+
 
+        TextView urlField = findViewById(R.id.nameUrlValueEdit);
+        urlField.setText("https://priceb.tc/api/price?currency=USD");
 //        TextView urlField = findViewById(R.id.nameUrlValueEdit);
 //        urlField.setText("http://api.thingspeak.com/channels/99791/feeds.json?results=1");
 //        DevTools.log(TAG, "FileDb.readDbFile(urlField.getContext())", FileDb.readDbFile(urlField.getContext()));
@@ -184,18 +186,13 @@ public class SensGraphConfigure extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_refresh:
-                getResponseAndUpdateNameList();
-                break;
-            case R.id.action_save:
-                saveAndFinnish(findViewById(R.id.activity_sens_graph_configure));
-                break;
-            case R.id.action_help:
-                showHelp(findViewById(R.id.activity_sens_graph_configure));
-                break;
-            default:
-                break;
+        int id = item.getItemId();
+        if (id == R.id.action_refresh) {
+            getResponseAndUpdateNameList();
+        } else if (id == R.id.action_save) {
+            saveAndFinnish(findViewById(R.id.activity_sens_graph_configure));
+        } else if (id == R.id.action_help) {
+            showHelp(findViewById(R.id.activity_sens_graph_configure));
         }
         return true;
     }
@@ -221,9 +218,9 @@ public class SensGraphConfigure extends AppCompatActivity {
             ActionMenuItemView mi = findViewById(R.id.action_save);
             if (stateOkToSave) {
                 //here ok, gradle has lintOptions {disable 'RestrictedApi'} option added
-                mi.setIcon(getDrawableVersionSafe(R.drawable.save_btn_ok_60));
+                mi.setIcon(getDrawableVersionSafe(android.R.drawable.ic_menu_save));
             } else {
-                mi.setIcon(getDrawableVersionSafe(R.drawable.save_btn_60));
+                mi.setIcon(getDrawableVersionSafe(android.R.drawable.ic_menu_save));
             }
             bConfigOkToSaveState = stateOkToSave;
         }

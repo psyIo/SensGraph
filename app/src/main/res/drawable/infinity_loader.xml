@@ -2,12 +2,12 @@
 <animation-list xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/infinityLoaderAnimation"
     android:oneshot="false">
-    <item android:drawable="@drawable/a0" android:duration="50"/>
-    <item android:drawable="@drawable/a1" android:duration="50"/>
-    <item android:drawable="@drawable/a2" android:duration="50"/>
-    <item android:drawable="@drawable/a3" android:duration="50"/>
-    <item android:drawable="@drawable/a4" android:duration="50"/>
-    <item android:drawable="@drawable/a5" android:duration="50"/>
-    <item android:drawable="@drawable/a6" android:duration="50"/>
-    <item android:drawable="@drawable/a7" android:duration="50"/>
+    <item android:drawable="@android:drawable/ic_menu_rotate" android:duration="50"/>
+    <item android:drawable="@android:drawable/ic_menu_rotate" android:duration="50"/>
+    <item android:drawable="@android:drawable/ic_menu_rotate" android:duration="50"/>
+    <item android:drawable="@android:drawable/ic_menu_rotate" android:duration="50"/>
+    <item android:drawable="@android:drawable/ic_menu_rotate" android:duration="50"/>
+    <item android:drawable="@android:drawable/ic_menu_rotate" android:duration="50"/>
+    <item android:drawable="@android:drawable/ic_menu_rotate" android:duration="50"/>
+    <item android:drawable="@android:drawable/ic_menu_rotate" android:duration="50"/>
 </animation-list>
